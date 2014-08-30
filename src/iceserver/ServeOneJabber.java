@@ -102,10 +102,10 @@ public class ServeOneJabber extends Thread
                     if (c == login.class)//Авторизация пользователя
                     {
                         System.out.println(new Date().toString() + " login");
-                        login log = API.Messaging((login) bm);
-                        if (log!=null)
+                        user u = API.Messaging((login) bm);
+                        if (u!=null)
                         {
-                            AuthMessaging(log.GetUser(accounts), outputStream, inputStream);
+                            AuthMessaging(u, outputStream, inputStream);
                             return;
                         }
                         else
