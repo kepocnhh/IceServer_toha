@@ -5,18 +5,20 @@ import api.CreatePDF;
 import api.SendEmail;
 import com.itextpdf.text.DocumentException;
 import ice.*;
-import ice.DataForRecord.TypeEvent;
-import java.io.*;
-
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 
 /**
  *
@@ -391,98 +393,6 @@ public class ServeOneJabber extends Thread
                             outputStream.writeObject((BaseMessage) myitog);
                             continue;
                     }
-                    /////////////////////////////////////////////
-                    if (p.getTypeEvent() == DataForRecord.TypeEvent.open)
-                    {
-                        System.out.println(new Date().toString() + " Is DFR.open " + authuser.GetMail());
-                            pdfname = p.nameshop + " " + filename + " " + Translate(p.getTypeEvent());
-                            System.out.println(new Date().toString() + " Create pdf " + authuser.GetMail());
-                                System.out.println(new Date().toString() + " " + TypeEvent.open.toString());
-                            myitog = API.Calculate_Itog(myitog, authuser, loglist);
-                            itoglist = API.Set_Itog(myitog, itoglist);
-                            API.AddMessage(itoglist, dir+ "/Itog");
-                            CreatePDF._CreatePDF(new Strings(StringsConfigFile), authuser,
-                                    p, myitog,
-                                    pdfdir + "/" + pdfname);
-                            System.out.println(new Date().toString() + " EmbeddedImageEmailUtil " + authuser.GetMail());
-                            for (String mail : maillist)
-                            {
-                                SendEmail.sendPdf(
-                                        mail,
-                                        pdfname, //Тема сообщения
-                                        myitog.day_otw+"\n"+
-                                        "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+""),
-                                        pdfdir + "/" + pdfname);
-                                System.out.println(new Date().toString() + " " + pdfname + " send to " + mail);
-                            }
-                            loglist.add(bm);
-                            API.AddMessage(loglist, fullname);
-                            System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname);
-                            outputStream.writeObject((BaseMessage) new ping("recordok"));
-                            System.out.println(new Date().toString() + " Recordok will be send to " + authuser.GetMail());
-                            continue;
-                    }
-                    if (p.getTypeEvent() == DataForRecord.TypeEvent.close)
-                    {
-                        System.out.println(new Date().toString() + " Ss DFR.close " + authuser.GetMail());
-                            System.out.println(new Date().toString() + " GetDFR " + authuser.GetMail());
-                            DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);
-                            DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);
-                            DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);
-                            pdfname = dfropen.nameshop + " " + filename + " " + Translate(p.getTypeEvent());
-                            System.out.println(new Date().toString() + " CreatePDF " + authuser.GetMail());
-                            myitog = API.Calculate_Itog(myitog, authuser, loglist);
-                            if(authuser.GetSuper())
-                            {
-                                myitog.SS = Itog.StatusSession.not_open;
-                            }
-                            itoglist = API.Set_Itog(myitog, itoglist);
-                            API.AddMessage(itoglist, dir+ "/Itog");
-                            CreatePDF._CreatePDF(new Strings(StringsConfigFile),
-                                    authuser,
-                                    dfropen,
-                                    dfrdrug,
-                                    dfrsteal,
-                                    p,
-                                    myitog,
-                                    pdfdir + "/" + pdfname);
-                            for (String mail : maillist)
-                            {
-                                SendEmail.sendPdf(mail, pdfname,
-                                myitog.day_otw+"\n"+
-                                "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"")+"\n"+
-                                "Конец рабочего дня "+myitog.date_close.getHours()+":"+CreatePDF.minutes(myitog.date_close.getMinutes()+"")+"\n"+
-                                "--------------------"+"\n"+
-                                "Продано кепок "+myitog.amount_k+"\n"+
-                                "Выручка за кепки "+myitog.amount_k*authuser.price_k+"\n"+
-                                "-"+"\n"+
-                                "Продано стаканов "+myitog.amount_s+"\n"+
-                                "Выручка за стаканы "+myitog.amount_s*authuser.price_s+"\n"+
-                                "-"+"\n"+
-                                "Всего выручка "+(myitog.amount_t*authuser.price_t+myitog.amount_k*authuser.price_k+myitog.amount_s*authuser.price_s)+"\n"+
-                                "--------------------"+"\n"+
-                                "Сумма бонуса "+myitog.amount_k*authuser.bonus+"\n"+
-                                "--------------------"+"\n"+
-                                "Вес кепок "+myitog.amount_k*authuser.weight_k+"\n"+
-                                "Вес стаканов "+myitog.amount_s*authuser.weight_s+"\n"+
-                                "-"+"\n"+
-                                "Итого ВЕС "+(myitog.amount_t*authuser.weight_t+myitog.amount_k*authuser.weight_k+myitog.amount_s*authuser.weight_s)+"\n"+
-                                "--------------------"+"\n"+
-                                "Оклад "+myitog.salary+"\n"+
-                                "ИТОГО ЗП "+((myitog.salary+myitog.amount_k*authuser.bonus)-myitog.get_summ_mulct())
-                                ,pdfdir + "/" + pdfname);
-                                System.out.println(new Date().toString() + " " + pdfname + " send to " + mail);
-
-                            }
-                            loglist.add(bm);
-                            API.AddMessage(loglist, fullname);
-                            pdfname = "recordok";
-                            System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname);
-                            
-                            outputStream.writeObject((BaseMessage) new ping(pdfname));
-                            System.out.println(new Date().toString() + " recordok will be send to " + authuser.GetMail());
-                            continue;
-                    }
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.drug || p.getTypeEvent() == DataForRecord.TypeEvent.steal)
                     {
                         System.out.println(new Date().toString() + " Is DFR.drug or steal " + authuser.GetMail());
@@ -505,13 +415,14 @@ public class ServeOneJabber extends Thread
                             bm = (BaseMessage)tmp;
                             loglist = API.Set_DFR(tmp, loglist);
                             API.AddMessage(loglist, fullname);
-                            pdfname = "recordok";
+                            System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname);
+                            outputStream.writeObject((BaseMessage) new ping("recordok"));
+                            System.out.println(new Date().toString() +" "+ pdfname + " will be sending to " + authuser.GetMail());
                             System.out.println(new Date().toString() + " recordok " + authuser.GetMail());
+                            continue;
                     }
-                    System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname);
-                    outputStream.writeObject((BaseMessage) new ping(pdfname));
-                    System.out.println(new Date().toString() +" "+ pdfname + " will be sending to " + authuser.GetMail());
-                    continue;
+                    outputStream.writeObject((BaseMessage) new ping("ERRORDFR"));
+                    return;
                 }
                     /////////////////////////////////////////////
                 if (c == DataCass.class)
@@ -582,13 +493,13 @@ public class ServeOneJabber extends Thread
         }
     }
 
-    private static String Translate(TypeEvent typeEvent)
+    private static String Translate(DataForRecord.TypeEvent typeEvent)
     {
-        if (typeEvent == TypeEvent.open)
+        if (typeEvent == DataForRecord.TypeEvent.open)
         {
             return "Открытие";
         }
-        if (typeEvent == TypeEvent.close)
+        if (typeEvent == DataForRecord.TypeEvent.close)
         {
             return "Закрытие";
         }

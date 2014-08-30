@@ -48,11 +48,8 @@ public class IceServer
         PrintStream st = new PrintStream(new FileOutputStream(args[3] + "DEBUG.txt",true));
         System.setErr(st);
         System.setOut(st);
-        
         ServerSocket s = new ServerSocket(Integer.parseInt(args[0]));
         System.out.println(new Date().toString() +" Server Started");
-        
-       
         try
         {
             while (true)
