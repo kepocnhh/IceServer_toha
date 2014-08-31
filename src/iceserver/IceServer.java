@@ -4,12 +4,19 @@ import api.API;
 import api.CreatePDF;
 import api.SendEmail;
 import com.itextpdf.text.DocumentException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,32 +26,21 @@ public class IceServer
 {
     //static final int PORT = 8085;
     
-
     /**
      * @param args the command line arguments
-     * args[0] - PORT
-     * args[1] - toreg
-     * args[2] - accounts
-     * args[3] - logdir
-     * args[4] - fonts
-     * args[5] - version
-     * args[6] - mail list (mail.txt)
-     * args[7] - Salary list
-     * args[8] - String config (config.txt)
+     * args[0] - PORT (config file PORT.txt)
      */
     public static void main(String[] args) throws IOException, DocumentException
     {
-        // TODO code application logic here
-        //ServerSocket s = new ServerSocket(PORT);
-        //int PORT = Integer.parseInt(args[0]);
-        if(args.length!=10)
+        if(args.length!=1)
         {
-            System.out.println("\nargs[0] - PORT\nargs[1] - toreg\nargs[2] - accounts\nargs[3] - logdir\nargs[4] - fonts\nargs[5] - version\nargs[6] - mail list\nargs[7] - salary list\nargs[8] - config strings\nargs[9] - time correct");
+            System.out.println("args[0] - PORT (PORT.txt)");
             return;
         }
-            SendEmail.SetProp("iceandgoit@gmail.com", "delaemicecreame");
-            CreatePDF.SetProp(args[4]);
-            API.SetProp(args[2],args[3],args[5],args[1]);
+        List<String> al = GetArgsList(args[0]);
+            API.SetProp(al.get(0), al.get(1), al.get(2), al.get(3), al.get(4));
+            CreatePDF.SetProp(al.get(5));
+            SendEmail.SetProp(al.get(7).split(" ")[0], al.get(7).split(" ")[1], al.get(6).split(" "));
         PrintStream st = new PrintStream(new FileOutputStream(args[3] + "DEBUG.txt",true));
         System.setErr(st);
         System.setOut(st);
@@ -59,7 +55,7 @@ public class IceServer
                 try
                 {
                     System.out.println(new Date().toString() + " Goto ServeOneJabber. InetAddress " + s.getInetAddress());
-                    new ServeOneJabber(socket, args[1], args[2], args[3], args[4],  args[5], args[6], args[7], args[8], args[9]);
+                    new ServeOneJabber(socket);
                 }
                 catch (IOException e)
                 {
@@ -73,5 +69,29 @@ public class IceServer
         {
             s.close();
         }
+    }
+    
+    static private List<String> GetArgsList(String args)
+    {
+        List<String> al = null;
+        try
+        {
+            BufferedReader br = new BufferedReader(new FileReader(args));
+            String str;
+            al = new ArrayList<String>();
+            while ((str = br.readLine()) != null)
+            {
+                al.add(str);
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return al;
     }
 }
