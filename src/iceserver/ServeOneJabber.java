@@ -165,16 +165,20 @@ public class ServeOneJabber extends Thread
         photoPath.mkdirs();
 
         String filename;
+        filename = FileName(authuser);
+        String fullname = dir + "/" + filename;
         String StatusSession = "SessionNotOpen";
-            List<BaseMessage> itoglist = API.GetBM_List(dir+ "/Itog");
-            Itog myitog = API.Get_Itog(authuser.GetMail(), itoglist);
+            List<BaseMessage> itoglist = API.GetBM_List(fullname);
+            Itog myitog;
             if(itoglist != null)
             {
+                myitog = API.Get_Itog(authuser.GetMail(), itoglist);
                 if(myitog != null)
                 {
+                    StatusSession = "SessionError";
                     if(myitog.SS==Itog.StatusSession.open)
                     {
-                        StatusSession = "SessionAlreadyOpen"; 
+                        StatusSession = "SessionAlreadyOpen";
                     }
                     if(myitog.SS==Itog.StatusSession.close)
                     {
@@ -185,7 +189,7 @@ public class ServeOneJabber extends Thread
                 {
                     myitog = new Itog(authuser.GetMail());
                     itoglist.add((BaseMessage) myitog);
-                    API.AddMessage(itoglist, dir+ "/Itog");
+                    API.AddMessage(itoglist, fullname);
                 }
             }
             else
@@ -193,10 +197,8 @@ public class ServeOneJabber extends Thread
                 itoglist = new ArrayList();
                     myitog = new Itog(authuser.GetMail());
                     itoglist.add((BaseMessage) myitog);
-                    API.AddMessage(itoglist, dir+ "/Itog");
+                    API.AddMessage(itoglist, fullname);
             }
-        filename = FileName(authuser);
-        String fullname = dir + "/" + filename;
             outputStream.writeObject((BaseMessage) new ping(StatusSession));
             System.out.println(new Date().toString() + " " + StatusSession + " StatusSession will be send to " + authuser.GetMail());
             BaseMessage bm;
@@ -318,7 +320,6 @@ public class ServeOneJabber extends Thread
                             {
                                 tmp = p;
                             }
-                            bm = (BaseMessage)tmp;
                             loglist = API.Set_DFR(tmp, loglist);
                             API.AddMessage(loglist, fullname);
                             System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname);
@@ -334,8 +335,8 @@ public class ServeOneJabber extends Thread
                 if (c == DataCass.class)
                 {
                     System.out.println(new Date().toString() + " IsDataCass" + authuser.GetMail());
-                    outputStream.writeObject((BaseMessage) new ping("cassok"));
                     API.AddMessage(bm, fullname);
+                    outputStream.writeObject((BaseMessage) new ping("cassok"));
                     System.out.println(new Date().toString() + " cassok");
                     continue;
                 }
@@ -349,9 +350,7 @@ public class ServeOneJabber extends Thread
                     System.out.println(new Date().toString() + " Ну и ладно...");
                     return;
                 }
-
             }
-        return;
     }
 
     private String CreateLogDirName(user us, String logDirPath)
