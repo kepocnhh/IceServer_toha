@@ -39,39 +39,30 @@ public class ServeOneJabber extends Thread
         try
         {
             Messaging();
-            return;
-        }
-        catch (IOException e)
-        {
-            System.err.println("IO Exception " + e.toString());
         } catch (MessagingException ex) {
-            Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
         } catch (DocumentException ex) {
-            Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+        } catch (IOException ex) {
         }
         finally
         {
             try
             {
                 socket.close();
-            }
-            catch (IOException e)
+            } 
+            catch (IOException ex) 
             {
-                System.err.println("Socket not closed " + e.toString());
+                
             }
         }
     }
     
     //Реализация обработки сообщений и бизнес-логика
-    private void Messaging() throws IOException, MessagingException, DocumentException
+    private void Messaging() throws IOException, MessagingException, DocumentException, ClassNotFoundException
     {
         System.out.println(new Date().toString() + " Messaging()");
-        try
-        {
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-            try
-            {
                 BaseMessage bm;
                 while ((bm = (BaseMessage) inputStream.readObject()) != null)
                 {
@@ -153,21 +144,8 @@ public class ServeOneJabber extends Thread
                         return;
                     }
                 }
-                return;
-            }
-            catch (ClassNotFoundException ex)
-            {
-                Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
-                System.err.println("Check your BaseMessage lib.");
-            }
-            return;
-        }
-        catch (IOException e)
-        {
-            System.err.println("IO Exception in Messaging! " + e.toString());
-        }
-        System.out.println(new Date().toString() + " WTF O_o");
-        BaseMessage bad = (BaseMessage) new ping("GetOut!");
+        //System.out.println(new Date().toString() + " WTF O_o");
+        //BaseMessage bad = (BaseMessage) new ping("GetOut!");
     }
 
     private void AuthMessaging(user authuser, ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException, ClassNotFoundException, DocumentException, MessagingException
@@ -228,9 +206,13 @@ public class ServeOneJabber extends Thread
                 if (API.Find_BM(bm, fullname)!=null)
                 {
                     //уже есть
-                    System.out.println(new Date().toString() + " поймали ещё одного лох-несса " + bm.toString() + 
-                            " " + " Logsession " + logsession);
-                    return;
+                    if(bm.getTypeMessage()==BaseMessage.TypeMessage.add)
+                    {
+                        //и лезет опять на добавление
+                        System.out.println(new Date().toString() + " поймали ещё одного лох-несса " + bm.toString() + 
+                                " " + " Logsession " + logsession);
+                        return;
+                    }
                 }
                 
                 //Сюда мы с Тошиком напишем реакцию сервера на каждый из классов, 
