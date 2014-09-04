@@ -67,7 +67,7 @@ public class ServeOneJabber extends Thread
                 while ((bm = (BaseMessage) inputStream.readObject()) != null)
                 {
                     Class c = bm.getClass();
-                    if (c == LastMessage.class)//принятый объект являетсяуведомлением об окончании связи между клиентом и сервером
+                    if (c == LastMessage.class)//принятый объект является уведомлением об окончании связи между клиентом и сервером
                     {
                         System.out.println(new Date().toString() + " LastMessage");
                         return;
@@ -76,14 +76,14 @@ public class ServeOneJabber extends Thread
                     {
                         System.out.println(new Date().toString() + " ping");
                         ping p = (ping) bm;
-                        if (p.GetVersion().equals(IceServer.version))
+                        if (p.GetVersion().equals(IceServer.version))//если версия клиентского приложения актуальна
                         {
-                            outputStream.writeObject((BaseMessage) new Strings(IceServer.StringsConfigFile));
+                            outputStream.writeObject((BaseMessage) new Strings(IceServer.StringsConfigFile));//отправляем клиенту объект с необходимой информацией
                             System.out.println(p.GetPing() + " device ON");
                         }
-                        else
+                        else//а если нет
                         {
-                            outputStream.writeObject((BaseMessage) new ping("UsedOldVersion"));
+                            outputStream.writeObject((BaseMessage) new ping("UsedOldVersion"));//оповещаем клиента о том, что он использует устаревшую версию приложения
                             System.out.println(new Date().toString() + " Еries to use the old version of the library");
                         }
                         continue;
@@ -143,21 +143,21 @@ public class ServeOneJabber extends Thread
                         }
                         continue;
                     }
-                    if (c == forget.class)
+                    if (c == forget.class)//принято сообщение о том, что пользователь хочет воостановить пароль
                     {
                         System.out.println(new Date().toString() + " Forget");
-                        user u = API.Get_user(((forget) bm).log, userlist);
-                        if (u!=null)
+                        user u = API.Get_user(((forget) bm).log, userlist);//попытка добыть объект данных пользователя по заданному логину
+                        if (u!=null)//если достали
                         {
                             System.out.println(new Date().toString() + " This is password");
-                            SendEmail.sendText(u.GetMail(), "Пароль", u.GetPass());
+                            SendEmail.sendText(u.GetMail(), "Пароль", u.GetPass());//значит можно взять из объекта пароль и отправить его на адрес пользователя
                             System.out.println(new Date().toString() + " Password will be send");
-                            outputStream.writeObject((BaseMessage) new ping("forgetok"));
+                            outputStream.writeObject((BaseMessage) new ping("forgetok"));//оповещаем клиента о том, что всё прошло успешно
                             System.out.println(new Date().toString() + " Forget request send");
                         }
-                        else
+                        else//а если не достали
                         {
-                            outputStream.writeObject((BaseMessage) new ping("sobed"));//
+                            outputStream.writeObject((BaseMessage) new ping("sobed"));//то оповещаем клиента о том, что мы не можем найти пользователя с таким логином
                             System.out.println(new Date().toString() + " ForgetSobed");
                         }
                     }
