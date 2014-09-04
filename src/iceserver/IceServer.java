@@ -30,6 +30,20 @@ public class IceServer
      * @param args the command line arguments
      * args[0] - PORT (config file PORT.txt)
      */
+    static public String accpath;
+    static public String logpath;
+    static public String version;
+    static public String toreg;
+    static public String StringsConfigFile;
+    
+    static public void SetProp(String a,String t,String l,String v,String scf)
+    {
+        accpath=a;
+        logpath=l;
+        version=v;
+        toreg=t;
+        StringsConfigFile=scf;
+    }
     public static void main(String[] args) throws IOException, DocumentException
     {
         if(args.length!=1)
@@ -38,7 +52,7 @@ public class IceServer
             return;
         }
         List<String> al = GetArgsList(args[0]);
-            API.SetProp(al.get(0), al.get(1), al.get(2), al.get(3), al.get(4));
+            SetProp(al.get(0), al.get(1), al.get(2), al.get(3), al.get(4));
             CreatePDF.SetProp(al.get(5));
             SendEmail.SetProp(al.get(7).split(" ")[0], al.get(7).split(" ")[1], al.get(6).split(" "));
         PrintStream st = new PrintStream(new FileOutputStream(args[3] + "DEBUG.txt",true));

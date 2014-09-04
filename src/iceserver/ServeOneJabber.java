@@ -67,29 +67,18 @@ public class ServeOneJabber extends Thread
                 while ((bm = (BaseMessage) inputStream.readObject()) != null)
                 {
                     Class c = bm.getClass();
-                    if (c == login.class)//Авторизация пользователя
+                    if (c == LastMessage.class)
                     {
-                        System.out.println(new Date().toString() + " login");
-                        user u = API.Messaging((login) bm);
-                        if (u!=null)
-                        {
-                            AuthMessaging(u, outputStream, inputStream);
-                            return;
-                        }
-                        else
-                        {
-                            System.out.println(new Date().toString() + " Auth not successful");
-                            outputStream.writeObject((BaseMessage) new ping("sobed"));
-                        }
-                        continue;
+                        System.out.println(new Date().toString() + " LastMessage");
+                        return;
                     }
                     if (c == ping.class)
                     {
                         System.out.println(new Date().toString() + " ping");
-                        ping p = API.Messaging((ping) bm);
-                        if (p!=null)
+                        ping p = (ping) bm;
+                        if (p.GetVersion().equals(IceServer.version))
                         {
-                            outputStream.writeObject((BaseMessage) new Strings(API.StringsConfigFile));
+                            outputStream.writeObject((BaseMessage) new Strings(IceServer.StringsConfigFile));
                             System.out.println(p.GetPing() + " device ON");
                         }
                         else
@@ -99,14 +88,42 @@ public class ServeOneJabber extends Thread
                         }
                         continue;
                     }
+                        List<BaseMessage> userlist = API.Get_BM_List(IceServer.accpath);
+                        if(userlist==null)
+                        {
+                                userlist = new ArrayList();
+                                API.AddMessage(userlist, IceServer.accpath);
+                        }
+                    if (c == login.class)//Авторизация пользователя
+                    {
+                        System.out.println(new Date().toString() + " login");
+                        user u = API.Get_user(((login) bm).get_log(), userlist);
+                        if(u != null)
+                        {
+                            if(u.GetPass().equalsIgnoreCase(((login) bm).get_pass()))
+                            {
+                                AuthMessaging(u, outputStream, inputStream);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            System.out.println(new Date().toString() + " Auth not successful");
+                            outputStream.writeObject((BaseMessage) new ping("sobed"));
+                        }
+                        continue;
+                    }
                     if (c == user.class)//Добавление заявки на регистрацию
                     {
                         System.out.println(new Date().toString() + " user");
-                        user us = API.Messaging((user) bm);
-                        if (us!=null)
+                        user u = API.Get_user(((forget) bm).log, userlist);
+                        if (u!=null)
                         {
+                                userlist = API.Get_BM_List(IceServer.toreg);
+                                userlist.add(bm);
+                                API.AddMessage(userlist, IceServer.toreg);
                             System.out.println(new Date().toString() + " Registration successful");
-                            SendEmail.sendText(us.GetMail(), "Регистрация", "Привет от ICENGO! \nВаша заявка успешно добавлена и будет обработана в течении нескольких минут. \nСпасибо."); //Запилить текст сообщения в файл
+                            SendEmail.sendText(u.GetMail(), "Регистрация", "Привет от ICENGO! \nВаша заявка успешно добавлена и будет обработана в течении нескольких минут. \nСпасибо."); //Запилить текст сообщения в файл
                             System.out.println(new Date().toString() + " Send Registration Mail");
                             outputStream.writeObject((BaseMessage) new ping("registrationok"));
                             System.out.println(new Date().toString() + " Registration request send");
@@ -122,8 +139,7 @@ public class ServeOneJabber extends Thread
                     if (c == forget.class)
                     {
                         System.out.println(new Date().toString() + " Forget");
-                        forget f = (forget) bm;
-                        user u = API.Messaging(f);
+                        user u = API.Get_user(((forget) bm).log, userlist);
                         if (u!=null)
                         {
                             System.out.println(new Date().toString() + " This is password");
@@ -134,25 +150,19 @@ public class ServeOneJabber extends Thread
                         }
                         else
                         {
-                            outputStream.writeObject((BaseMessage) new ping("forgetok"));
+                            outputStream.writeObject((BaseMessage) new ping("sobed"));//
                             System.out.println(new Date().toString() + " ForgetSobed");
                         }
                     }
-                    if (c == LastMessage.class)
-                    {
-                        System.out.println(new Date().toString() + " LastMessage");
-                        return;
-                    }
                 }
-        //System.out.println(new Date().toString() + " WTF O_o");
-        //BaseMessage bad = (BaseMessage) new ping("GetOut!");
+        System.out.println(new Date().toString() + " WTF O_o");
     }
 
     private void AuthMessaging(user authuser, ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException, ClassNotFoundException, DocumentException, MessagingException
     {
         System.out.println(new Date().toString() + " Auth Successful " + authuser.GetMail());
         
-        String dir = CreateLogDirName(authuser, API.logpath);
+        String dir = CreateLogDirName(authuser, IceServer.logpath);
         File myPath = new File(dir);
         myPath.mkdirs();
 
@@ -168,11 +178,11 @@ public class ServeOneJabber extends Thread
         filename = FileName(authuser);
         String fullname = dir + "/" + filename;
         String StatusSession = "SessionNotOpen";
-            List<BaseMessage> itoglist = API.GetBM_List(fullname);
+            List<BaseMessage> loglist = API.Get_BM_List(fullname);
             Itog myitog;
-            if(itoglist != null)
+            if(loglist != null)
             {
-                myitog = API.Get_Itog(authuser.GetMail(), itoglist);
+                myitog = API.Get_Itog(authuser.GetMail(), loglist);
                 if(myitog != null)
                 {
                     StatusSession = "SessionError";
@@ -188,33 +198,35 @@ public class ServeOneJabber extends Thread
                 else
                 {
                     myitog = new Itog(authuser.GetMail());
-                    itoglist.add((BaseMessage) myitog);
-                    API.AddMessage(itoglist, fullname);
+                    loglist.add((BaseMessage) myitog);
+                    API.AddMessage(loglist, fullname);
                 }
             }
             else
             {
-                itoglist = new ArrayList();
+                loglist = new ArrayList();
                     myitog = new Itog(authuser.GetMail());
-                    itoglist.add((BaseMessage) myitog);
-                    API.AddMessage(itoglist, fullname);
+                    loglist.add((BaseMessage) myitog);
+                    API.AddMessage(loglist, fullname);
             }
             outputStream.writeObject((BaseMessage) new ping(StatusSession));
             System.out.println(new Date().toString() + " " + StatusSession + " StatusSession will be send to " + authuser.GetMail());
             BaseMessage bm;
             while ((bm = (BaseMessage) inputStream.readObject()) != null)
             {
-                List<BaseMessage> logsession = API.GetBM_List(fullname);
-                if (API.Find_BM(bm, fullname)!=null)
+                if (API.Get_BM(bm, loglist)!=null)
                 {
                     //уже есть
                     if(bm.getTypeMessage()==BaseMessage.TypeMessage.add)
                     {
                         //и лезет опять на добавление
                         System.out.println(new Date().toString() + " поймали ещё одного лох-несса " + bm.toString() + 
-                                " " + " Logsession " + logsession);
+                                " " + " Logsession " + loglist);
                         return;
                     }
+                        //и лезет куда-то ещё 0о
+                        System.out.println(new Date().toString() + " что-то новенькое 0о " + bm.toString() + 
+                                " " + " Logsession " + loglist);
                 }
                 
                 //Сюда мы с Тошиком напишем реакцию сервера на каждый из классов, 
@@ -222,7 +234,8 @@ public class ServeOneJabber extends Thread
                 Class c = bm.getClass();
                 if (c == ping.class)
                 {
-                    API.AddMessage(bm, fullname);
+                            loglist.add(bm);
+                            API.AddMessage(loglist, fullname);
                     System.out.println(new Date().toString() + " ping " + ((ping) bm).GetPing() + " " + authuser.GetMail());
                     outputStream.writeObject(bm);
                     continue;
@@ -232,27 +245,20 @@ public class ServeOneJabber extends Thread
                     System.out.println(new Date().toString() + " DFR " + authuser.GetMail());
                     DataForRecord p = (DataForRecord) bm;
                     String pdfname = "";
-                    List<BaseMessage> loglist = API.GetBM_List(fullname);
-                            if (loglist == null)
-                            {
-                                System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname + " to " + authuser.GetMail());
-                                outputStream.writeObject((BaseMessage) new ping("LogListIsEmpty"));
-                                continue;
-                            }
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.open || p.getTypeEvent() == DataForRecord.TypeEvent.close)
                     {
                         pdfname = p.nameshop + " " + filename + " " + Translate(p.getTypeEvent());
                             loglist.add(bm);
                             API.AddMessage(loglist, fullname);
                         myitog = API.Calculate_Itog(myitog, authuser, loglist);
-                        itoglist = API.Set_Itog(myitog, itoglist);
-                        API.AddMessage(itoglist, dir+ "/Itog");
+                        loglist = API.Set_Itog(myitog, loglist);
+                        API.AddMessage(loglist, fullname);
                         String 
                             mailtext = myitog.day_otw+"\n"+
                                         "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
                         if (p.getTypeEvent() == DataForRecord.TypeEvent.open)
                         {
-                            CreatePDF._CreatePDF(new Strings(API.StringsConfigFile), authuser,
+                            CreatePDF._CreatePDF(new Strings(IceServer.StringsConfigFile), authuser,
                                     p, myitog,
                                     pdfdir + "/" + pdfname);
                         }
@@ -261,7 +267,7 @@ public class ServeOneJabber extends Thread
                             DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);
                             DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);
                             DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);
-                            CreatePDF._CreatePDF(new Strings(API.StringsConfigFile),
+                            CreatePDF._CreatePDF(new Strings(IceServer.StringsConfigFile),
                                     authuser,
                                     dfropen,
                                     dfrdrug,
@@ -335,7 +341,8 @@ public class ServeOneJabber extends Thread
                 if (c == DataCass.class)
                 {
                     System.out.println(new Date().toString() + " IsDataCass" + authuser.GetMail());
-                    API.AddMessage(bm, fullname);
+                            loglist.add(bm);
+                            API.AddMessage(loglist, fullname);
                     outputStream.writeObject((BaseMessage) new ping("cassok"));
                     System.out.println(new Date().toString() + " cassok");
                     continue;
@@ -392,7 +399,7 @@ public class ServeOneJabber extends Thread
         }
         else
         {
-            String path = CreateLogDirName(us, API.logpath);
+            String path = CreateLogDirName(us, IceServer.logpath);
             String ls[] = new File(path).list();
             return FileName + " " + (ls.length - 3);//DEBUG для супера
         }
