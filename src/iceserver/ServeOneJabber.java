@@ -89,7 +89,7 @@ public class ServeOneJabber extends Thread
                         continue;
                     }
                         List<BaseMessage> userlist = API.Get_BM_List(IceServer.accpath);
-                        if(userlist==null)
+                        if(userlist == null)
                         {
                                 userlist = new ArrayList();
                                 API.AddMessage(userlist, IceServer.accpath);
@@ -162,37 +162,41 @@ public class ServeOneJabber extends Thread
     {
         System.out.println(new Date().toString() + " Auth Successful " + authuser.GetMail());
         
-        String dir = CreateLogDirName(authuser, IceServer.logpath);
-        File myPath = new File(dir);
-        myPath.mkdirs();
+        String dir = CreateLogDirName(authuser, IceServer.logpath);//директория сегодняшних логов
+        new File(dir).mkdirs();//создаём эти директории
 
-        String pdfdir = dir + "/" + "pdf";
-        File PdfPath = new File(pdfdir);
-        PdfPath.mkdirs();
+        String pdfdir = dir + "/" + "pdf";//путь к отчётам PDF
+        new File(pdfdir).mkdirs();
 
-        String photodir = dir + "/" + "photo";
-        File photoPath = new File(photodir);
-        photoPath.mkdirs();
+        String photodir = dir + "/" + "photo";//путь к фотографиям
+        new File(photodir).mkdirs();
 
-        String filename;
-        filename = FileName(authuser);
-        String fullname = dir + "/" + filename;
-        String StatusSession = "SessionNotOpen";
-            List<BaseMessage> loglist = API.Get_BM_List(fullname);
-            Itog myitog;
-            if(loglist != null)
+        String filename = FileName(authuser);//создаём имя для файла лога от пользователя
+        String fullname = dir + "/" + filename;//полный путь до файла лога
+        String StatusSession = "SessionNotOpen";//информация о статусе сессии пользователя
+            List<BaseMessage> loglist = API.Get_BM_List(fullname);//список объектов внутри файла логов
+            Itog myitog;//объект итогов пользователя
+            if(loglist != null)//если лист существует
             {
-                myitog = API.Get_Itog(authuser.GetMail(), loglist);
-                if(myitog != null)
+                myitog = API.Get_Itog(authuser.GetMail(), loglist);//попытка достать объект итогов пользователя
+                if(myitog != null)//если объект существует
                 {
-                    StatusSession = "SessionError";
-                    if(myitog.SS==Itog.StatusSession.open)
+                    StatusSession = null;
+                    if(myitog.SS==Itog.StatusSession.not_open)//сессия ещё не открывалась
+                    {
+                        StatusSession = "SessionNotOpen";
+                    }
+                    if(myitog.SS==Itog.StatusSession.open)//уже открывалась но не закончилась
                     {
                         StatusSession = "SessionAlreadyOpen";
                     }
-                    if(myitog.SS==Itog.StatusSession.close)
+                    if(myitog.SS==Itog.StatusSession.close)//уже закрылась
                     {
                         StatusSession = "SessionAlreadyClose"; 
+                    }
+                    if(StatusSession==null)
+                    {
+                        outputStream.writeObject((BaseMessage) new ping(StatusSession));//если не одно из условий не выполнится, то необходимо вывести сообщение об ошибке
                     }
                 }
                 else
