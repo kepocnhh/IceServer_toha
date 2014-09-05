@@ -13,8 +13,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.MessagingException;
 
 /**
@@ -181,7 +179,7 @@ public class ServeOneJabber extends Thread
         String filename = FileName(authuser);//создаём имя для файла лога от пользователя
         String fullname = dir + "/" + filename;//полный путь до файла лога
         String StatusSession = "SessionNotOpen";//информация о статусе сессии пользователя
-            List<BaseMessage> loglist = API.Get_BM_List(fullname);//список объектов внутри файла логов
+            List<BaseMessage> loglist = API.Get_BM_List(fullname);//попытка достать список объектов внутри файла логов
             Itog myitog;//объект итогов пользователя
             if(loglist != null)//если лист существует
             {
@@ -205,29 +203,29 @@ public class ServeOneJabber extends Thread
                     {
                         System.out.println(new Date().toString() + "  StatusSessionError " + authuser.GetMail());
                         outputStream.writeObject((BaseMessage) new ping("StatusSessionError"));//если не одно из условий не выполнится, то необходимо вывести сообщение об ошибке
-                        return;
+                        return;//не позволяем программе дальше обрабатывать информацию
                     }
                 }
-                else
+                else//если объект не существует
                 {
-                    myitog = new Itog(authuser.GetMail());
-                    loglist.add((BaseMessage) myitog);
-                    API.AddMessage(loglist, fullname);
+                    myitog = new Itog(authuser.GetMail());//создаём его по умолчанию
+                    loglist.add((BaseMessage) myitog);//добавляем в лист
+                    API.AddMessage(loglist, fullname);//записываем лист в файл лога
                 }
             }
-            else
+            else//если лист не существует
             {
-                loglist = new ArrayList();
-                    myitog = new Itog(authuser.GetMail());
-                    loglist.add((BaseMessage) myitog);
-                    API.AddMessage(loglist, fullname);
+                loglist = new ArrayList();//создаём пустой лист
+                    myitog = new Itog(authuser.GetMail());//создаём объект итогов по умолчанию
+                    loglist.add((BaseMessage) myitog);//добавляем в лист
+                    API.AddMessage(loglist, fullname);//записываем лист в файл лога
             }
-            outputStream.writeObject((BaseMessage) new ping(StatusSession));
+            outputStream.writeObject((BaseMessage) new ping(StatusSession));//отправляем пользователю сообщение со значением статуса его рабочей смены
             System.out.println(new Date().toString() + " " + StatusSession + " StatusSession will be send to " + authuser.GetMail());
             BaseMessage bm;
             while ((bm = (BaseMessage) inputStream.readObject()) != null)
             {
-                if (API.Get_BM(bm, loglist)!=null)
+                if (API.Get_BM(bm, loglist)!=null)//порверяем не записывал ли сервер объект с таким же UI
                 {
                     //уже есть
                     if(bm.getTypeMessage()==BaseMessage.TypeMessage.add)
@@ -235,51 +233,50 @@ public class ServeOneJabber extends Thread
                         //и лезет опять на добавление
                         System.out.println(new Date().toString() + " поймали ещё одного лох-несса " + bm.toString() + 
                                 " " + " Logsession " + loglist);
-                        return;
+                        return;//не позволяем программе дальше обрабатывать информацию
                     }
                         //и лезет куда-то ещё 0о
                         System.out.println(new Date().toString() + " что-то новенькое 0о " + bm.toString() + 
                                 " " + " Logsession " + loglist);
+                        return;//не позволяем программе дальше обрабатывать информацию
                 }
                 
                 //Сюда мы с Тошиком напишем реакцию сервера на каждый из классов, 
                 //которые может принять сервер. И будет нам счастье!
                 Class c = bm.getClass();
-                if (c == ping.class)
+                if (c == ping.class)//от клиента пришло сообщение о том, что клиент начал работать на определенном этапе
                 {
-                            loglist.add(bm);
-                            API.AddMessage(loglist, fullname);
+                            loglist.add(bm);//просто добавляем это сообщение в лист объектов лога
+                            API.AddMessage(loglist, fullname);//записываем лист в файл лога
                     System.out.println(new Date().toString() + " ping " + ((ping) bm).GetPing() + " " + authuser.GetMail());
-                    outputStream.writeObject(bm);
+                    outputStream.writeObject(bm);//зеркально отвечаем клиенту
                     continue;
                 }
-                if (c == DataForRecord.class)
+                if (c == DataForRecord.class)//пришло сообщение содержащие данные для записи
                 {
                     System.out.println(new Date().toString() + " DFR " + authuser.GetMail());
                     DataForRecord p = (DataForRecord) bm;
-                    String pdfname = "";
-                    if (p.getTypeEvent() == DataForRecord.TypeEvent.open || p.getTypeEvent() == DataForRecord.TypeEvent.close)
+                    String pdfname = null;
+                    if (p.getTypeEvent() == DataForRecord.TypeEvent.open || p.getTypeEvent() == DataForRecord.TypeEvent.close)//и это касается конкретно открытия или закрытия смены 
                     {
-                        pdfname = p.nameshop + " " + filename + " " + Translate(p.getTypeEvent());
-                            loglist.add(bm);
-                            API.AddMessage(loglist, fullname);
-                        myitog = API.Calculate_Itog(myitog, authuser, loglist);
-                        loglist = API.Set_Itog(myitog, loglist);
-                        API.AddMessage(loglist, fullname);
-                        String 
-                            mailtext = myitog.day_otw+"\n"+
+                        pdfname = p.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
+                            loglist.add(bm);//добавляем это сообщение в лист объектов лога
+                        myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
+                        loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
+                        API.AddMessage(loglist, fullname);//записываем лист в файл лога
+                        String mailtext = myitog.day_otw+"\n"+
                                         "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
-                        if (p.getTypeEvent() == DataForRecord.TypeEvent.open)
+                        if (p.getTypeEvent() == DataForRecord.TypeEvent.open)//если было открытие
                         {
                             CreatePDF._CreatePDF(new Strings(IceServer.StringsConfigFile), authuser,
                                     p, myitog,
-                                    pdfdir + "/" + pdfname);
+                                    pdfdir + "/" + pdfname);//запускаем метод класса CreatePDF для создания отчёта на открытие
                         }
-                        else
+                        else//а если закрытие
                         {
-                            DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);
-                            DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);
-                            DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);
+                            DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);//пробуем добыть данные с открытия
+                            DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);//приходы
+                            DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);//уходы
                             CreatePDF._CreatePDF(new Strings(IceServer.StringsConfigFile),
                                     authuser,
                                     dfropen,
@@ -287,7 +284,7 @@ public class ServeOneJabber extends Thread
                                     dfrsteal,
                                     p,
                                     myitog,
-                                    pdfdir + "/" + pdfname);
+                                    pdfdir + "/" + pdfname);//запускаем метод класса CreatePDF для создания отчёта на закрытие
                             mailtext += "\n"+
                                 "Конец рабочего дня "+myitog.date_close.getHours()+":"+CreatePDF.minutes(myitog.date_close.getMinutes()+"")+"\n"+
                                 "--------------------"+"\n"+
@@ -309,7 +306,7 @@ public class ServeOneJabber extends Thread
                                 "Оклад "+myitog.salary+"\n"+
                                 "ИТОГО ЗП "+((myitog.salary+myitog.amount_k*authuser.bonus)-myitog.get_summ_mulct());
                         }
-                            for (String mail : SendEmail.maillist)
+                            for (String mail : SendEmail.maillist)//отправляем письмо с отчётом и коментарием всем адресам в списке SendEmail.maillist
                             {
                                 SendEmail.sendPdf(
                                         mail,
@@ -317,25 +314,18 @@ public class ServeOneJabber extends Thread
                                         mailtext,
                                         pdfdir + "/" + pdfname);
                             }
-                            outputStream.writeObject((BaseMessage) myitog);
+                            outputStream.writeObject((BaseMessage) myitog);//отправляем итоги клиенту
                             continue;
                     }
-                    if (p.getTypeEvent() == DataForRecord.TypeEvent.drug || p.getTypeEvent() == DataForRecord.TypeEvent.steal)
+                    if (p.getTypeEvent() == DataForRecord.TypeEvent.drug || p.getTypeEvent() == DataForRecord.TypeEvent.steal)//а если всё же пришла дата по приходу или уходу
                     {
                         System.out.println(new Date().toString() + " Is DFR.drug or steal " + authuser.GetMail());
-                            DataForRecord tmp = API.Get_DFR(p.getTypeEvent(), loglist);
-                            if(tmp!=null)
+                            DataForRecord tmp = API.Get_DFR(p.getTypeEvent(), loglist);//сначала пытаемся достать то, что уже было
+                            if(tmp!=null)//если такое 0_0 было раньше
                             {
-                                if(p.getTypeEvent() == DataForRecord.TypeEvent.drug)
-                                {
-                                    tmp.addData(p, true);
-                                }
-                                else
-                                {
-                                    tmp.addData(p, false);
-                                }
+                                    tmp.addData(p, true);//то складываем 
                             }
-                            else
+                            else//ну а если не было, то принятый объект теперь будет... 
                             {
                                 tmp = p;
                             }
