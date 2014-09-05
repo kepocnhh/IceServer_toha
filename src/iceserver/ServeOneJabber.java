@@ -21,17 +21,17 @@ import javax.mail.MessagingException;
  */
 public class ServeOneJabber extends Thread
 {
-//Поля//////////////////////////////////////////////////////////////////////
+//Поля////////////////////////////////////////////////////////////////////////////////////
     private Socket socket;
     
-//Конструкторы//////////////////////////////////////////////////////////////
+//Конструкторы/////////////////////////////////////////////////////////////////////////////
     public ServeOneJabber(Socket s) throws IOException
     {
         socket = s;
         start(); // вызываем run()
     }
     
-//Методы////////////////////////////////////////////////////////////////////
+//Методы//////////////////////////////////////////////////////////////////////////////////
     public void run()
     {
         try
@@ -56,113 +56,119 @@ public class ServeOneJabber extends Thread
     }
     
     //Реализация обработки сообщений и бизнес-логика
+    //ДО АВТОРИЗАЦИИ
     private void Messaging() throws IOException, MessagingException, DocumentException, ClassNotFoundException
     {
         System.out.println(new Date().toString() + " Messaging()");
-            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-                BaseMessage bm;
-                while ((bm = (BaseMessage) inputStream.readObject()) != null)
+        ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+        ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            BaseMessage bm;
+            while ((bm = (BaseMessage) inputStream.readObject()) != null)
+            {
+                Class c = bm.getClass();
+                if (c == LastMessage.class)//принятый объект является уведомлением об окончании связи между клиентом и сервером
                 {
-                    Class c = bm.getClass();
-                    if (c == LastMessage.class)//принятый объект является уведомлением об окончании связи между клиентом и сервером
+                    System.out.println(new Date().toString() + " LastMessage");
+                    return;
+                }
+                if (c == BaseMessage.class)//принято сообщение о том, что клиентское приложение запущено 
+                {
+                    if(bm.getTypeMessage() == BaseMessage.TypeMessage.notification)
                     {
-                        System.out.println(new Date().toString() + " LastMessage");
-                        return;
-                    }
-                    if (c == ping.class)//принято сообщение о том, что клиентское приложение запущено 
-                    {
-                        System.out.println(new Date().toString() + " ping");
-                        ping p = (ping) bm;
-                        if (p.GetVersion().equals(IceServer.version))//если версия клиентского приложения актуальна
+                        System.out.println(new Date().toString() + " BaseMessage");
+                        if (bm.GetVersion().equals(IceServer.version))//если версия клиентского приложения актуальна
                         {
                             outputStream.writeObject((BaseMessage) new Strings(IceServer.StringsConfigFile));//отправляем клиенту объект с необходимой информацией
-                            System.out.println(p.GetPing() + " device ON");
+                            System.out.println(" device ON");
                         }
                         else//а если нет
                         {
-                            outputStream.writeObject((BaseMessage) new ping("UsedOldVersion"));//оповещаем клиента о том, что он использует устаревшую версию приложения
+                            outputStream.writeObject((BaseMessage) new IceError("UsedOldVersion"));//оповещаем клиента о том, что он использует устаревшую версию приложения
                             System.out.println(new Date().toString() + " Еries to use the old version of the library");
                         }
                         continue;
                     }
-                        //если вы дошли до сюда, значит вы хотите работать с данными пользователей...
-                        //или вы неведома зверушка
-                        List<BaseMessage> userlist = API.Get_BM_List(IceServer.accpath);//список с данными пользователей
-                        if(userlist == null)//если списка не существует
-                        {
-                                userlist = new ArrayList();//его нужно создать
-                                API.AddMessage(userlist, IceServer.accpath);//и записать в файл
-                        }
-                    if (c == login.class)//Авторизация пользователя
-                    {
-                        System.out.println(new Date().toString() + " login");
-                        user u = API.Get_user(((login) bm).get_log(), userlist);//попытка добыть объект данных пользователя по заданному логину
-                        if(u != null)//если добыли
-                        {
-                            if(u.GetPass().equalsIgnoreCase(((login) bm).get_pass()))//если запрошеный пароль совпадает с паролем найденного пользователя
-                            {
-                                AuthMessaging(u, outputStream, inputStream);//перехоим в обработку сообщений клиентского приложения от конкретного пользователя
-                                return;
-                            }
-                        }
-                        else//если не добыли
-                        {
-                            System.out.println(new Date().toString() + " Auth not successful");//нужно вывести сообщение о неуаче
-                            outputStream.writeObject((BaseMessage) new ping("sobed"));//и ответить соответственно клиенту
-                        }
-                        continue;
-                    }
-                    if (c == user.class)//Добавление заявки на регистрацию
-                    {
-                        System.out.println(new Date().toString() + " user");
-                        user u = API.Get_user(((forget) bm).log, userlist);//попытка добыть объект данных пользователя по заданному логину
-                        if(u == null)//если не добыли (это хорошо, потому что мыло не занято)
-                        {
-                                userlist = API.Get_BM_List(IceServer.toreg);//переделываем список подтвержденных пользователей в списо неподтвержденных, который пытаемся достать из файла
-                                if(userlist == null)//если списка не существует
-                                {
-                                        userlist = new ArrayList();//его нужно создать
-                                        API.AddMessage(userlist, IceServer.toreg);//и записать в файл
-                                }
-                                userlist.add(bm);//добавляем в список новобранца
-                                API.AddMessage(userlist, IceServer.toreg);//и записываем список в файл
-                            System.out.println(new Date().toString() + " Registration successful");
-                            SendEmail.sendText(((forget) bm).log, "Регистрация", "Привет от ICENGO! \nВаша заявка успешно добавлена и будет обработана в течении нескольких минут. \nСпасибо."); //Запилить текст сообщения в файл
-                            System.out.println(new Date().toString() + " Send Registration Mail");
-                            outputStream.writeObject((BaseMessage) new ping("registrationok"));//оповещаем клиента о том, что всё прошло успешно
-                            System.out.println(new Date().toString() + " Registration request send");
-                        }
-                        else//а если достали
-                        {
-                            System.out.println(new Date().toString() + " Mail is used.");
-                            outputStream.writeObject((BaseMessage) new ping("mailisused"));//оповещаем клиента о том, что такой электронный адресс уже используется
-                            System.out.println(new Date().toString() + " Mail is used send");
-                        }
-                        continue;
-                    }
-                    if (c == forget.class)//принято сообщение о том, что пользователь хочет воостановить пароль
-                    {
-                        System.out.println(new Date().toString() + " Forget");
-                        user u = API.Get_user(((forget) bm).log, userlist);//попытка добыть объект данных пользователя по заданному логину
-                        if (u!=null)//если достали
-                        {
-                            System.out.println(new Date().toString() + " This is password");
-                            SendEmail.sendText(u.GetMail(), "Пароль", u.GetPass());//значит можно взять из объекта пароль и отправить его на адрес пользователя
-                            System.out.println(new Date().toString() + " Password will be send");
-                            outputStream.writeObject((BaseMessage) new ping("forgetok"));//оповещаем клиента о том, что всё прошло успешно
-                            System.out.println(new Date().toString() + " Forget request send");
-                        }
-                        else//а если не достали
-                        {
-                            outputStream.writeObject((BaseMessage) new ping("sobed"));//то оповещаем клиента о том, что мы не можем найти пользователя с таким логином
-                            System.out.println(new Date().toString() + " ForgetSobed");
-                        }
-                    }
+                    System.out.println(new Date().toString() + " WTF O_o" + "BaseMessage not notification");
+                    return;
                 }
-        System.out.println(new Date().toString() + " WTF O_o");
+                //если вы дошли до сюда, значит вы хотите работать с данными пользователей...
+                //или вы неведома зверушка
+                    List<BaseMessage> userlist = API.Get_BM_List(IceServer.accpath);//список с данными пользователей
+                    if(userlist == null)//если списка не существует
+                    {
+                            userlist = new ArrayList();//его нужно создать
+                            API.AddMessage(userlist, IceServer.accpath);//и записать в файл
+                    }
+                if (c == login.class)//Авторизация пользователя
+                {
+                    System.out.println(new Date().toString() + " login");
+                    user u = API.Get_user(((login) bm).get_log(), userlist);//попытка добыть объект данных пользователя по заданному логину
+                    if(u != null)//если добыли
+                    {
+                        if(u.GetPass().equalsIgnoreCase(((login) bm).get_pass()))//если запрошеный пароль совпадает с паролем найденного пользователя
+                        {
+                            AuthMessaging(u, outputStream, inputStream);//перехоим в обработку сообщений клиентского приложения от конкретного пользователя
+                            return;
+                        }
+                    }
+                    //если не добыли
+                        System.out.println(new Date().toString() + " Auth not successful");//нужно вывести сообщение о неуаче
+                        outputStream.writeObject((BaseMessage) new IceError("sobed"));//и ответить соответственно клиенту
+                    continue;
+                }
+                if (c == user.class)//Добавление заявки на регистрацию
+                {
+                    System.out.println(new Date().toString() + " user");
+                    user u = API.Get_user(((user) bm).GetMail(), userlist);//попытка добыть объект данных пользователя по заданному логину
+                    if(u == null)//если не добыли (это хорошо, потому что мыло не занято)
+                    {
+                            userlist = API.Get_BM_List(IceServer.toreg);//переделываем список подтвержденных пользователей в список неподтвержденных, который пытаемся достать из файла
+                            if(userlist == null)//если списка не существует
+                            {
+                                userlist = new ArrayList();//его нужно создать
+                            }
+                            userlist.add(bm);//добавляем в список новобранца
+                            API.AddMessage(userlist, IceServer.toreg);//и записываем список в файл
+                        System.out.println(new Date().toString() + " Registration successful");
+                        SendEmail.sendText(((user) bm).GetMail(), "Регистрация", "Привет от ICENGO!" +"\n" + 
+                                "Ваша заявка успешно добавлена и будет обработана в течении нескольких минут." +"\n" +
+                                "Спасибо."); //Запилить текст сообщения в файл
+                        System.out.println(new Date().toString() + " Send Registration Mail");
+                        outputStream.writeObject((BaseMessage) new ping("registrationok"));//оповещаем клиента о том, что всё прошло успешно
+                        System.out.println(new Date().toString() + " Registration request send");
+                    }
+                    else//а если достали
+                    {
+                        System.out.println(new Date().toString() + " Mail is used.");
+                        outputStream.writeObject((BaseMessage) new IceError("mailisused"));//оповещаем клиента о том, что такой электронный адресс уже используется
+                        System.out.println(new Date().toString() + " Mail is used send");
+                    }
+                    continue;
+                }
+                if (c == forget.class)//принято сообщение о том, что пользователь хочет воостановить пароль
+                {
+                    System.out.println(new Date().toString() + " Forget");
+                    user u = API.Get_user(((forget) bm).GetPing(), userlist);//попытка добыть объект данных пользователя по заданному логину
+                    if (u!=null)//если достали
+                    {
+                        System.out.println(new Date().toString() + " This is password");
+                        SendEmail.sendText(u.GetMail(), "Пароль", u.GetPass());//значит можно взять из объекта пароль и отправить его на адрес пользователя
+                        System.out.println(new Date().toString() + " Password will be send");
+                        outputStream.writeObject((BaseMessage) new ping("forgetok"));//оповещаем клиента о том, что всё прошло успешно
+                        System.out.println(new Date().toString() + " Forget request send");
+                    }
+                    else//а если не достали
+                    {
+                        outputStream.writeObject((BaseMessage) new IceError("sobed"));//то оповещаем клиента о том, что мы не можем найти пользователя с таким логином
+                        System.out.println(new Date().toString() + " ForgetSobed");
+                    }
+                    continue;
+                }
+                System.out.println(new Date().toString() + " WTF O_o" + " IN");
+            }
+        System.out.println(new Date().toString() + " WTF O_o" + " OUT");
     }
-
+    //ПОСЛЕ АВТОРИЗАЦИИ
     private void AuthMessaging(user authuser, ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException, ClassNotFoundException, DocumentException, MessagingException
     {
         System.out.println(new Date().toString() + " Auth Successful " + authuser.GetMail());
@@ -178,33 +184,33 @@ public class ServeOneJabber extends Thread
 
         String filename = FileName(authuser);//создаём имя для файла лога от пользователя
         String fullname = dir + "/" + filename;//полный путь до файла лога
-        String StatusSession = "SessionNotOpen";//информация о статусе сессии пользователя
-            List<BaseMessage> loglist = API.Get_BM_List(fullname);//попытка достать список объектов внутри файла логов
+        //String StatusSession = "SessionNotOpen";//информация о статусе сессии пользователя
             Itog myitog;//объект итогов пользователя
+            List<BaseMessage> loglist = API.Get_BM_List(fullname);//попытка достать список объектов внутри файла логов
             if(loglist != null)//если лист существует
             {
                 myitog = API.Get_Itog(authuser.GetMail(), loglist);//попытка достать объект итогов пользователя
                 if(myitog != null)//если объект существует
                 {
-                    StatusSession = null;
-                    if(myitog.SS==Itog.StatusSession.not_open)//сессия ещё не открывалась
-                    {
-                        StatusSession = "SessionNotOpen";
-                    }
-                    if(myitog.SS==Itog.StatusSession.open)//уже открывалась но не закончилась
-                    {
-                        StatusSession = "SessionAlreadyOpen";
-                    }
-                    if(myitog.SS==Itog.StatusSession.close)//уже закрылась
-                    {
-                        StatusSession = "SessionAlreadyClose"; 
-                    }
-                    if(StatusSession==null)
-                    {
-                        System.out.println(new Date().toString() + "  StatusSessionError " + authuser.GetMail());
-                        outputStream.writeObject((BaseMessage) new ping("StatusSessionError"));//если не одно из условий не выполнится, то необходимо вывести сообщение об ошибке
-                        return;//не позволяем программе дальше обрабатывать информацию
-                    }
+//                    StatusSession = null;
+//                    if(myitog.SS==Itog.StatusSession.not_open)//сессия ещё не открывалась
+//                    {
+//                        StatusSession = "SessionNotOpen";
+//                    }
+//                    if(myitog.SS==Itog.StatusSession.open)//уже открывалась но не закончилась
+//                    {
+//                        StatusSession = "SessionAlreadyOpen";
+//                    }
+//                    if(myitog.SS==Itog.StatusSession.close)//уже закрылась
+//                    {
+//                        StatusSession = "SessionAlreadyClose"; 
+//                    }
+//                    if(StatusSession==null)
+//                    {
+//                        System.out.println(new Date().toString() + "  StatusSessionError " + authuser.GetMail());
+//                        outputStream.writeObject((BaseMessage) new ping("StatusSessionError"));//если не одно из условий не выполнится, то необходимо вывести сообщение об ошибке
+//                        return;//не позволяем программе дальше обрабатывать информацию
+//                    }
                 }
                 else//если объект не существует
                 {
@@ -220,8 +226,8 @@ public class ServeOneJabber extends Thread
                     loglist.add((BaseMessage) myitog);//добавляем в лист
                     API.AddMessage(loglist, fullname);//записываем лист в файл лога
             }
-            outputStream.writeObject((BaseMessage) new ping(StatusSession));//отправляем пользователю сообщение со значением статуса его рабочей смены
-            System.out.println(new Date().toString() + " " + StatusSession + " StatusSession will be send to " + authuser.GetMail());
+            outputStream.writeObject((BaseMessage) myitog);//отправляем пользователю объект итогов из которого он может взять все необходимые данные
+            System.out.println(new Date().toString() + " Itog will be send to " + authuser.GetMail());
             BaseMessage bm;
             while ((bm = (BaseMessage) inputStream.readObject()) != null)
             {
@@ -241,8 +247,8 @@ public class ServeOneJabber extends Thread
                         return;//не позволяем программе дальше обрабатывать информацию
                 }
                 
-                //Сюда мы с Тошиком напишем реакцию сервера на каждый из классов, 
-                //которые может принять сервер. И будет нам счастье!
+                //Сюда мы с Тошиком напишем реакцию сервера на каждый из классов, которые может принять сервер...
+                //И будет нам счастье!
                 Class c = bm.getClass();
                 if (c == ping.class)//от клиента пришло сообщение о том, что клиент начал работать на определенном этапе
                 {
@@ -323,7 +329,7 @@ public class ServeOneJabber extends Thread
                             DataForRecord tmp = API.Get_DFR(p.getTypeEvent(), loglist);//сначала пытаемся достать то, что уже было
                             if(tmp!=null)//если такое 0_0 было раньше
                             {
-                                    tmp.addData(p, true);//то складываем 
+                                tmp.addData(p, true);//то складываем 
                             }
                             else//ну а если не было, то принятый объект теперь будет... 
                             {
@@ -332,15 +338,14 @@ public class ServeOneJabber extends Thread
                             loglist = API.Set_DFR(tmp, loglist);
                             API.AddMessage(loglist, fullname);
                             System.out.println(new Date().toString() + " " + "DFRrequest " + pdfname);
-                            outputStream.writeObject((BaseMessage) new ping("recordok"));
+                            outputStream.writeObject((BaseMessage) myitog);//отправляем итоги клиенту
                             System.out.println(new Date().toString() +" "+ pdfname + " will be sending to " + authuser.GetMail());
                             System.out.println(new Date().toString() + " recordok " + authuser.GetMail());
                             continue;
                     }
-                    outputStream.writeObject((BaseMessage) new ping("ERRORDFR"));
+                    outputStream.writeObject((BaseMessage) new IceError("sobed"));
                     return;
                 }
-                    /////////////////////////////////////////////
                 if (c == DataCass.class)
                 {
                     System.out.println(new Date().toString() + " IsDataCass" + authuser.GetMail());
