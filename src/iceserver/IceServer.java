@@ -1,9 +1,9 @@
 package iceserver;
 
-import api.API;
 import api.CreatePDF;
 import api.SendEmail;
 import com.itextpdf.text.DocumentException;
+import ice.Strings;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,15 +34,15 @@ public class IceServer
     static public String logpath;
     static public String version;
     static public String toreg;
-    static public String StringsConfigFile;
+    static public Strings StringsConfigBM;
     
-    static public void SetProp(String a,String t,String l,String v,String scf)
+    static public void SetProp(String a,String t,String l,String v,String scf) throws IOException
     {
         accpath=a;
         logpath=l;
         version=v;
         toreg=t;
-        StringsConfigFile=scf;
+        StringsConfigBM = new Strings(scf);
     }
     public static void main(String[] args) throws IOException, DocumentException
     {
