@@ -110,9 +110,13 @@ public class ServeOneJabber extends Thread
                             AuthMessaging(u, outputStream, inputStream);//перехоим в обработку сообщений клиентского приложения от конкретного пользователя
                             return;
                         }
+                        else
+                        {
+                            System.out.println(new Date().toString() + " wrong password");//логин совпал, а пароль нет
+                        }
                     }
                     //если не добыли
-                        System.out.println(new Date().toString() + " Auth not successful");//нужно вывести сообщение о неуаче
+                        System.out.println(new Date().toString() + " Auth not successful");//нужно вывести сообщение о неудаче
                         outputStream.writeObject((BaseMessage) new IceError("sobed"));//и ответить соответственно клиенту
                     continue;
                 }
@@ -165,8 +169,10 @@ public class ServeOneJabber extends Thread
                     continue;
                 }
                 System.out.println(new Date().toString() + " WTF O_o" + " IN");
+                return;//не позволяем программе дальше обрабатывать информацию
             }
         System.out.println(new Date().toString() + " WTF O_o" + " OUT");
+        return;//не позволяем программе дальше обрабатывать информацию
     }
     //ПОСЛЕ АВТОРИЗАЦИИ
     private void AuthMessaging(user authuser, ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException, ClassNotFoundException, DocumentException, MessagingException
@@ -184,35 +190,12 @@ public class ServeOneJabber extends Thread
 
         String filename = FileName(authuser);//создаём имя для файла лога от пользователя
         String fullname = dir + "/" + filename;//полный путь до файла лога
-        //String StatusSession = "SessionNotOpen";//информация о статусе сессии пользователя
             Itog myitog;//объект итогов пользователя
             List<BaseMessage> loglist = API.Get_BM_List(fullname);//попытка достать список объектов внутри файла логов
             if(loglist != null)//если лист существует
             {
                 myitog = API.Get_Itog(authuser.GetMail(), loglist);//попытка достать объект итогов пользователя
-                if(myitog != null)//если объект существует
-                {
-//                    StatusSession = null;
-//                    if(myitog.SS==Itog.StatusSession.not_open)//сессия ещё не открывалась
-//                    {
-//                        StatusSession = "SessionNotOpen";
-//                    }
-//                    if(myitog.SS==Itog.StatusSession.open)//уже открывалась но не закончилась
-//                    {
-//                        StatusSession = "SessionAlreadyOpen";
-//                    }
-//                    if(myitog.SS==Itog.StatusSession.close)//уже закрылась
-//                    {
-//                        StatusSession = "SessionAlreadyClose"; 
-//                    }
-//                    if(StatusSession==null)
-//                    {
-//                        System.out.println(new Date().toString() + "  StatusSessionError " + authuser.GetMail());
-//                        outputStream.writeObject((BaseMessage) new ping("StatusSessionError"));//если не одно из условий не выполнится, то необходимо вывести сообщение об ошибке
-//                        return;//не позволяем программе дальше обрабатывать информацию
-//                    }
-                }
-                else//если объект не существует
+                if(myitog == null)//если объект не существует
                 {
                     myitog = new Itog(authuser.GetMail());//создаём его по умолчанию
                     loglist.add((BaseMessage) myitog);//добавляем в лист
@@ -234,9 +217,8 @@ public class ServeOneJabber extends Thread
                 if (API.Get_BM(bm, loglist)!=null)//порверяем не записывал ли сервер объект с таким же UI
                 {
                     //уже есть
-                    if(bm.getTypeMessage()==BaseMessage.TypeMessage.add)
+                    if(bm.getTypeMessage()==BaseMessage.TypeMessage.add)//и лезет опять на добавление
                     {
-                        //и лезет опять на добавление
                         System.out.println(new Date().toString() + " поймали ещё одного лох-несса " + bm.toString() + 
                                 " " + " Logsession " + loglist);
                         return;//не позволяем программе дальше обрабатывать информацию
@@ -258,10 +240,11 @@ public class ServeOneJabber extends Thread
                     outputStream.writeObject(bm);//зеркально отвечаем клиенту
                     continue;
                 }
-                if (c == DataForRecord.class)//пришло сообщение содержащие данные для записи
+                if (c == DataForRecord.class)//пришло сообщение содержащее данные для записи
                 {
                     System.out.println(new Date().toString() + " DFR " + authuser.GetMail());
                     DataForRecord p = (DataForRecord) bm;
+                    System.out.println(new Date().toString() + Translate(p.getTypeEvent()));
                     String pdfname = null;
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.open || p.getTypeEvent() == DataForRecord.TypeEvent.close)//и это касается конкретно открытия или закрытия смены 
                     {
@@ -325,13 +308,12 @@ public class ServeOneJabber extends Thread
                     }
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.drug || p.getTypeEvent() == DataForRecord.TypeEvent.steal)//а если всё же пришла дата по приходу или уходу
                     {
-                        System.out.println(new Date().toString() + " Is DFR.drug or steal " + authuser.GetMail());
                             DataForRecord tmp = API.Get_DFR(p.getTypeEvent(), loglist);//сначала пытаемся достать то, что уже было
                             if(tmp!=null)//если такое 0_0 было раньше
                             {
                                 tmp.addData(p, true);//то складываем 
                             }
-                            else//ну а если не было, то принятый объект теперь будет... 
+                            else//ну а если не было, то принятый объект теперь будет актуальным 
                             {
                                 tmp = p;
                             }
@@ -343,12 +325,14 @@ public class ServeOneJabber extends Thread
                             System.out.println(new Date().toString() + " recordok " + authuser.GetMail());
                             continue;
                     }
-                    outputStream.writeObject((BaseMessage) new IceError("sobed"));
-                    return;
+                    //а такое может случиться в случае, если мы изменили суть DataForRecord и не согласовали его работу
+                        System.out.println(new Date().toString() + " нужно срочно проверить работу DataForRecord на сервере и клиенте!");
+                        return;//не позволяем программе дальше обрабатывать информацию
                 }
                 if (c == DataCass.class)
                 {
-                    System.out.println(new Date().toString() + " IsDataCass" + authuser.GetMail());
+                    System.out.println(new Date().toString() + " DataCass" + authuser.GetMail());
+                    System.out.println(new Date().toString() + Translate(((DataCass)bm).getTypeEvent()));
                             loglist.add(bm);
                             API.AddMessage(loglist, fullname);
                     outputStream.writeObject((BaseMessage) new ping("cassok"));
@@ -360,57 +344,50 @@ public class ServeOneJabber extends Thread
                     System.out.println(new Date().toString() + " Бабай!");
                     return;
                 }
-                else
-                {
-                    System.out.println(new Date().toString() + " Ну и ладно...");
-                    return;
-                }
+                System.out.println(new Date().toString() + " WTF O_o" + " IN");
+                return;//не позволяем программе дальше обрабатывать информацию
             }
+        System.out.println(new Date().toString() + " WTF O_o" + " OUT");
+        return;//не позволяем программе дальше обрабатывать информацию
     }
 
     private String CreateLogDirName(user us, String logDirPath)
     {
-        Date date = us.GetDate();   //DEBUG учесть часовой пояс!
-        String mail = us.GetMail();
-        String surname = us.GetSurname();
+        Date date = us.GetDate();
 
         int year = date.getYear() + 1900;
         int mounth = date.getMonth() + 1;
         int day = date.getDate();
 
-        if (!us.GetSuper())
+        String path = logDirPath + year + "/" + mounth + "/" + day;
+        if (us.GetSuper())
         {
-            return logDirPath + year + "/" + mounth + "/" + day;
+            path += "/" + "supers" + "/" + us.GetMail();
         }
-        else
-        {
-            String path = logDirPath + year + "/" + mounth + "/" + day + "/" + "supers" + "/" + mail;
-            return path;
-        }
+        return path;
     }
 
     private String FileName(user us)
     {
-        Date date = us.GetDate();   //DEBUG учесть часовой пояс!
-        String mail = us.GetMail();
-        String surname = us.GetSurname();
+        Date date = us.GetDate();
 
         int year = date.getYear() + 1900;
         int mounth = date.getMonth() + 1;
         int day = date.getDate();
 
-        String FileName = surname + " " + day + "." + mounth + "." + year;
+        String FileName = us.GetSurname() + " " + day + "." + mounth + "." + year;
 
-        if (!us.GetSuper())
-        {
-            return FileName;
-        }
-        else
+        if (us.GetSuper())
         {
             String path = CreateLogDirName(us, IceServer.logpath);
-            String ls[] = new File(path).list();
-            return FileName + " " + (ls.length - 3);//DEBUG для супера
+            int num = new File(path).list().length -3;
+            if(num < 0)
+            {
+                num = 0;
+            }
+            FileName += " " + num;
         }
+            return FileName;
     }
 
     private static String Translate(DataForRecord.TypeEvent typeEvent)
@@ -423,6 +400,30 @@ public class ServeOneJabber extends Thread
         {
             return "Закрытие";
         }
-        return "";
+        if (typeEvent == DataForRecord.TypeEvent.drug)
+        {
+            return "Приход";
+        }
+        if (typeEvent == DataForRecord.TypeEvent.steal)
+        {
+            return "Уход";
+        }
+        return "ERROR";
+    }
+    private static String Translate(DataCass.TypeEvent typeEvent)
+    {
+        if (typeEvent == DataCass.TypeEvent.cass)
+        {
+            return "Аванс";
+        }
+        if (typeEvent == DataCass.TypeEvent.inkasator)
+        {
+            return "Инкасация";
+        }
+        if (typeEvent == DataCass.TypeEvent.promoter)
+        {
+            return "Промоутер";
+        }
+        return "ERROR";
     }
 }
