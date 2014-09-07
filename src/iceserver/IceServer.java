@@ -24,8 +24,6 @@ import java.util.logging.Logger;
  */
 public class IceServer
 {
-    //static final int PORT = 8085;
-    
     /**
      * @param args the command line arguments
      * args[0] - PORT (config file PORT.txt)
@@ -73,8 +71,7 @@ public class IceServer
                 }
                 catch (IOException e)
                 {
-                    // Если завершится неудачей, закрывается сокет,
-                    // в противном случае, нить закроет его:
+                    // Если завершится неудачей, закрывается сокет, в противном случае, нить закроет его:
                     socket.close();
                 }
             }
