@@ -6,9 +6,11 @@ import api.SendEmail;
 import com.itextpdf.text.DocumentException;
 import ice.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
@@ -131,37 +133,12 @@ public class ServeOneJabber extends Thread
                 if (c == login.class)//Авторизация пользователя
                 {
                     System.out.println(new Date().toString() + " login");
-                    user u;
-                    try {
-                        u = API.Get_user(((login) bm).get_log(), userlist); //попытка добыть объект данных пользователя по заданному логину
-                    } catch (IOException ex) {
-                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла" +"\n" +
-                                        c.toString() + "неудачная попытка получить объект данных пользователя по заданному логину");
-                                System.out.println(new Date().toString() + ex.toString());
-                                Answer(c, outputStream, (BaseMessage) new IceError("ReaduserError"),"неудачная попытка ответить клиенту что получить объект данных пользователя по заданному логину не удалось");//оповещаем клиента о том, что неудачная попытка получить объект данных пользователя по заданному логину
-                                return;//не позволяем программе дальше обрабатывать информацию
-                    } catch (ClassNotFoundException ex) {
-                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с классами" +"\n" +
-                                        c.toString() + "класс который получили не тот BaseMessage");
-                                System.out.println(new Date().toString() + ex.toString());
-                                Answer(c, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
-                                return;//не позволяем программе дальше обрабатывать информацию
-                    }
+                    user u = API.Get_user(((login) bm).get_log(), userlist); //попытка добыть объект данных пользователя по заданному логину
                     if(u != null)//если добыли
                     {
                         if(u.GetPass().equals(((login) bm).get_pass()))//если запрошеный пароль совпадает с паролем найденного пользователя
                         {
-                            try {
-                                AuthMessaging(u, outputStream, inputStream);//перехоим в обработку сообщений клиентского приложения от конкретного пользователя
-                            } catch (IOException ex) {
-                                Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (ClassNotFoundException ex) {
-                                Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (DocumentException ex) {
-                                Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (MessagingException ex) {
-                                Logger.getLogger(ServeOneJabber.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                                AuthMessaging(u, outputStream, inputStream);//переходим в обработку сообщений клиентского приложения от конкретного пользователя
                             return;
                         }
                         else
@@ -180,22 +157,7 @@ public class ServeOneJabber extends Thread
                 if (c == user.class)//Добавление заявки на регистрацию
                 {
                     System.out.println(new Date().toString() + " user");
-                    user u;
-                    try {
-                        u = API.Get_user(((user) bm).GetMail(), userlist);//попытка добыть объект данных пользователя по заданному логину
-                    } catch (IOException ex) {
-                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла" +"\n" +
-                                        c.toString() + "неудачная попытка получить объект данных пользователя по заданному логину");
-                                System.out.println(new Date().toString() + ex.toString());
-                                Answer(c, outputStream, (BaseMessage) new IceError("ReaduserError"),"неудачная попытка ответить клиенту что получить объект данных пользователя по заданному логину не удалось");//оповещаем клиента о том, что неудачная попытка получить объект данных пользователя по заданному логину
-                                return;//не позволяем программе дальше обрабатывать информацию
-                    } catch (ClassNotFoundException ex) {
-                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с классами" +"\n" +
-                                        c.toString() + "класс который получили не тот BaseMessage");
-                                System.out.println(new Date().toString() + ex.toString());
-                                Answer(c, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
-                                return;//не позволяем программе дальше обрабатывать информацию
-                    }
+                    user u = API.Get_user(((user) bm).GetMail(), userlist);//попытка добыть объект данных пользователя по заданному логину
                     if(u == null)//если не добыли (это хорошо, потому что мыло не занято)
                     {
                         userlist = Get_BM_List(IceServer.toreg, c, outputStream);//переделываем список подтвержденных пользователей в список неподтвержденных, который пытаемся достать из файла
@@ -242,22 +204,7 @@ public class ServeOneJabber extends Thread
                 if (c == forget.class)//принято сообщение о том, что пользователь хочет воостановить пароль
                 {
                     System.out.println(new Date().toString() + " Forget");
-                    user u;
-                    try {
-                        u = API.Get_user(((forget) bm).GetPing(), userlist);//попытка добыть объект данных пользователя по заданному логину
-                    } catch (IOException ex) {
-                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла" +"\n" +
-                                        c.toString() + "неудачная попытка получить объект данных пользователя по заданному логину");
-                                System.out.println(new Date().toString() + ex.toString());
-                                Answer(c, outputStream, (BaseMessage) new IceError("ReaduserError"),"неудачная попытка ответить клиенту что получить объект данных пользователя по заданному логину не удалось");//оповещаем клиента о том, что неудачная попытка получить объект данных пользователя по заданному логину
-                                return;//не позволяем программе дальше обрабатывать информацию
-                    } catch (ClassNotFoundException ex) {
-                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с классами" +"\n" +
-                                        c.toString() + "класс который получили не тот BaseMessage");
-                                System.out.println(new Date().toString() + ex.toString());
-                                Answer(c, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
-                                return;//не позволяем программе дальше обрабатывать информацию
-                    }
+                    user u = API.Get_user(((forget) bm).GetPing(), userlist);//попытка добыть объект данных пользователя по заданному логину
                     if (u!=null)//если достали
                     {
                         System.out.println(new Date().toString() + " This is password");
@@ -294,7 +241,7 @@ public class ServeOneJabber extends Thread
         return;//не позволяем программе дальше обрабатывать информацию
     }
     //ПОСЛЕ АВТОРИЗАЦИИ
-    private void AuthMessaging(user authuser, ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException, ClassNotFoundException, DocumentException, MessagingException
+    private void AuthMessaging(user authuser, ObjectOutputStream outputStream, ObjectInputStream inputStream)
     {
         System.out.println(new Date().toString() + " Auth Successful " + authuser.GetMail());
         
@@ -310,29 +257,48 @@ public class ServeOneJabber extends Thread
         String filename = FileName(authuser);//создаём имя для файла лога от пользователя
         String fullname = dir + "/" + filename;//полный путь до файла лога
             Itog myitog;//объект итогов пользователя
-            List<BaseMessage> loglist = API.Get_BM_List(fullname);//попытка достать список объектов внутри файла логов
-            if(loglist != null)//если лист существует
-            {
+                List<BaseMessage> loglist = Get_BM_List(fullname, BaseMessage.class, outputStream);//читаем лист объектов из файла логов
+                    if(loglist == null)//и если чтение прошло успешно то продолжаем
+                    {
+                        return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
+                    }
                 myitog = API.Get_Itog(authuser.GetMail(), loglist);//попытка достать объект итогов пользователя
                 if(myitog == null)//если объект не существует
                 {
                     myitog = new Itog(authuser.GetMail());//создаём его по умолчанию
                     loglist.add((BaseMessage) myitog);//добавляем в лист
-                    API.AddMessage(loglist, fullname);//записываем лист в файл лога
+                    //записываем лист в файл лога
+                    if(AddMessage(loglist, fullname, BaseMessage.class, outputStream))//и если запись прошла успешно то продолжаем
+                    {
+                        return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
+                    }
                 }
-            }
-            else//если лист не существует
-            {
-                loglist = new ArrayList();//создаём пустой лист
-                    myitog = new Itog(authuser.GetMail());//создаём объект итогов по умолчанию
-                    loglist.add((BaseMessage) myitog);//добавляем в лист
-                    API.AddMessage(loglist, fullname);//записываем лист в файл лога
-            }
-            outputStream.writeObject((BaseMessage) myitog);//отправляем пользователю объект итогов из которого он может взять все необходимые данные
-            System.out.println(new Date().toString() + " Itog will be send to " + authuser.GetMail());
+                            if(Answer(Itog.class, outputStream, (BaseMessage) myitog,"неудачная попытка отправить пользователю объект итогов из которого он может взять все необходимые данные"))//отправляем пользователю объект итогов из которого он может взять все необходимые данные
+                             {
+                                return;//не позволяем программе дальше обрабатывать информацию
+                            }
+                            System.out.println(new Date().toString() + " Itog will be send to " + authuser.GetMail());
             BaseMessage bm;
-            while ((bm = (BaseMessage) inputStream.readObject()) != null)
+            while (true)
             {
+                try {
+                    bm = (BaseMessage) inputStream.readObject();
+                } catch (IOException ex) {
+                    System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением объекта"+ " AuthMessaging");
+                    System.out.println(new Date().toString() + ex.toString());
+                                Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ReadObject"),"неудачная попытка ответить клиенту что проблема с чтением объекта");//оповещаем клиента о том, что проблема с чтением объекта
+                    return;//не позволяем программе дальше обрабатывать информацию
+                } catch (ClassNotFoundException ex) {
+                    System.out.println(new Date().toString() + " WTF O_o" + " проблемма с классами"+ " AuthMessaging");
+                    System.out.println(new Date().toString() + ex.toString());
+                                Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
+                    return;//не позволяем программе дальше обрабатывать информацию
+                }
+                if(bm == null)
+                {
+                    System.out.println(new Date().toString() + " while" + " break");
+                    break;
+                }
                 if (API.Get_BM(bm, loglist)!=null)//порверяем не записывал ли сервер объект с таким же UI
                 {
                     //уже есть
@@ -354,9 +320,16 @@ public class ServeOneJabber extends Thread
                 if (c == ping.class)//от клиента пришло сообщение о том, что клиент начал работать на определенном этапе
                 {
                             loglist.add(bm);//просто добавляем это сообщение в лист объектов лога
-                            API.AddMessage(loglist, fullname);//записываем лист в файл лога
+                    //записываем лист в файл лога
+                    if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
+                    {
+                        return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
+                    }
                     System.out.println(new Date().toString() + " ping " + ((ping) bm).GetPing() + " " + authuser.GetMail());
-                    outputStream.writeObject(bm);//зеркально отвечаем клиенту
+                            if(Answer(Itog.class, outputStream, bm,"неудачная попытка //зеркально ответить клиенту"))//зеркально отвечаем клиенту
+                             {
+                                return;//не позволяем программе дальше обрабатывать информацию
+                            }
                     continue;
                 }
                 if (c == DataForRecord.class)//пришло сообщение содержащее данные для записи
@@ -371,26 +344,54 @@ public class ServeOneJabber extends Thread
                             loglist.add(bm);//добавляем это сообщение в лист объектов лога
                         myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
                         loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
-                        API.AddMessage(loglist, fullname);//записываем лист в файл лога
+                            //записываем лист в файл лога
+                            if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
+                            {
+                                return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
+                            }
                         String mailtext = myitog.day_otw+"\n"+
                                         "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
                         if (p.getTypeEvent() == DataForRecord.TypeEvent.open)//если было открытие
                         {
-                            CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
-                                    p, myitog,
-                                    pdfdir + "/" + pdfname);//запускаем метод класса CreatePDF для создания отчёта на открытие
+                            try {
+                                CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
+                                        p, myitog,
+                                        pdfdir + "/" + pdfname);//запускаем метод класса CreatePDF для создания отчёта на открытие
+                            } catch (DocumentException ex) {
+                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с созданием PDF"+ " " + Translate(p.getTypeEvent()));
+                                System.out.println(new Date().toString() + ex.toString());
+                                            Answer(c, outputStream, (BaseMessage) new IceError("PDFDocumentError"),"неудачная попытка ответить клиенту что проблема с созданием PDF");//оповещаем клиента о том, что проблема с созданием PDF
+                                return;//не позволяем программе дальше обрабатывать информацию
+                            } catch (FileNotFoundException ex) {
+                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла PDF"+ " " + Translate(p.getTypeEvent()));
+                                System.out.println(new Date().toString() + ex.toString());
+                                            Answer(c, outputStream, (BaseMessage) new IceError("PDFFileError"),"неудачная попытка ответить клиенту что проблема с чтением из файла PDF");//оповещаем клиента о том, что проблема с чтением из файла
+                                return;//не позволяем программе дальше обрабатывать информацию
+                            }
                         }
                         else//а если закрытие
                         {
                             DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);//пробуем добыть данные с открытия
                             DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);//приходы
                             DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);//уходы
-                            CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
-                                    dfropen,
-                                    dfrdrug,
-                                    dfrsteal,
-                                    p, myitog,
-                                    pdfdir + "/" + pdfname);//запускаем метод класса CreatePDF для создания отчёта на закрытие
+                            try {
+                                CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
+                                        dfropen,
+                                        dfrdrug,
+                                        dfrsteal,
+                                        p, myitog,
+                                        pdfdir + "/" + pdfname);//запускаем метод класса CreatePDF для создания отчёта на закрытие
+                            } catch (DocumentException ex) {
+                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с созданием PDF"+ " " + Translate(p.getTypeEvent()));
+                                System.out.println(new Date().toString() + ex.toString());
+                                            Answer(c, outputStream, (BaseMessage) new IceError("PDFDocumentError"),"неудачная попытка ответить клиенту что проблема с созданием PDF");//оповещаем клиента о том, что проблема с созданием PDF
+                                return;//не позволяем программе дальше обрабатывать информацию
+                            } catch (FileNotFoundException ex) {
+                                System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла PDF"+ " " + Translate(p.getTypeEvent()));
+                                System.out.println(new Date().toString() + ex.toString());
+                                            Answer(c, outputStream, (BaseMessage) new IceError("PDFFileError"),"неудачная попытка ответить клиенту что проблема с чтением из файла PDF");//оповещаем клиента о том, что проблема с чтением из файла
+                                return;//не позволяем программе дальше обрабатывать информацию
+                            }
                             mailtext += "\n"+
                                 "Конец рабочего дня "+myitog.date_close.getHours()+":"+CreatePDF.minutes(myitog.date_close.getMinutes()+"")+"\n"+
                                 "--------------------"+"\n"+
@@ -414,11 +415,25 @@ public class ServeOneJabber extends Thread
                         }
                             for (String mail : SendEmail.maillist)//отправляем письмо с отчётом и коментарием всем адресам в списке SendEmail.maillist
                             {
-                                SendEmail.sendPdf(
-                                        mail,
-                                        pdfname, //Тема сообщения
-                                        mailtext,
-                                        pdfdir + "/" + pdfname);
+                                try {
+                                    SendEmail.sendPdf(
+                                            mail,
+                                            pdfname, //Тема сообщения
+                                            mailtext,
+                                            pdfdir + "/" + pdfname);
+                                } catch (MessagingException ex) {
+                                        System.out.println(new Date().toString() + " WTF O_o" + " проблема с электронной почтой" +"\n" +
+                                                c.toString() + "не удалось отправить письмо с результатом регистрации");
+                                        System.out.println(new Date().toString() + ex.toString());
+                                        Answer(c, outputStream, (BaseMessage) new IceError("MessagingError"),"неудачная попытка ответить клиенту что письмо отправить не удалось");//попытка ответить клиенту что письмо отправить не удалось
+                                        return;//не позволяем программе дальше обрабатывать информацию
+                                }catch (UnsupportedEncodingException ex) {
+                                        System.out.println(new Date().toString() + " WTF O_o" + " проблема с кодировкой" +"\n" +
+                                                c.toString() + "не удалось отправить письмо с результатом регистрации");
+                                        System.out.println(new Date().toString() + ex.toString());
+                                        Answer(c, outputStream, (BaseMessage) new IceError("MessagingError"),"неудачная попытка ответить клиенту что письмо отправить не удалось");//попытка ответить клиенту что письмо отправить не удалось
+                                        return;//не позволяем программе дальше обрабатывать информацию
+                                }
                             }
                             outputStream.writeObject((BaseMessage) myitog);//отправляем итоги клиенту
                             continue;
