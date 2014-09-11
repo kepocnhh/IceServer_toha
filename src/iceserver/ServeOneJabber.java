@@ -353,18 +353,18 @@ public class ServeOneJabber extends Thread
                 {
                     String pdfname;//имя для PDF отчёта
                     loglist.add(bm);//добавляем это сообщение в лист объектов лога
-                    myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
+                    myitog = API.Calculate_Itog(authuser, loglist);//пересчитываем объект итогов
                     loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
                     //записываем лист в файл лога
                     if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
                     {
                         return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                     }
+                        pdfname = myitog.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
                     String mailtext = myitog.day_otw+"\n"+
                             "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.open)//если было открытие
                     {
-                        pdfname = p.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
                         try
                         {
                             CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
@@ -391,7 +391,6 @@ public class ServeOneJabber extends Thread
                         DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);//пробуем добыть данные с открытия
                         DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);//пробуем добыть данные с приходами
                         DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);//уходами
-                        pdfname = dfropen.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
                         try
                         {
                             CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
