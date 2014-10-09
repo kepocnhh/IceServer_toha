@@ -113,7 +113,7 @@ public class ServeOneJabber extends Thread
                         }
                         else//а если нет
                         {
-                            if(Answer(c, outputStream, (BaseMessage) new IceError("UsedOldVersion"),"версия клиентского приложения НЕ актуальна"))//оповещаем клиента о том, что он использует устаревшую версию приложения
+                            if(Answer(c, outputStream, (BaseMessage) new IceError("UsedOldVersion\t"+IceServer.version),"версия клиентского приложения НЕ актуальна"))//оповещаем клиента о том, что он использует устаревшую версию приложения
                             {
                                 return;//не позволяем программе дальше обрабатывать информацию
                             }
@@ -126,7 +126,7 @@ public class ServeOneJabber extends Thread
                 }
                 //если вы дошли до сюда, значит вы хотите работать с данными пользователей...
                 //или вы неведома зверушка
-                List<BaseMessage> userlist = Get_BM_List(IceServer.accpath, c, outputStream);//читаем лист объектов из файла логов
+                List<String> userlist = G_S_L(IceServer.accpath, c, outputStream);//читаем лист объектов из файла с аккаунтами
                 if(userlist == null)//и если чтение прошло успешно то продолжаем
                 {
                     return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
@@ -161,14 +161,14 @@ public class ServeOneJabber extends Thread
                     user u = API.Get_user(((user) bm).GetMail(), userlist);//попытка добыть объект данных пользователя по заданному логину
                     if(u == null)//если не добыли (это хорошо, потому что мыло не занято)
                     {
-                        List<BaseMessage> toreglist = Get_BM_List(IceServer.toreg, c, outputStream);//переделываем список подтвержденных пользователей в список неподтвержденных, который пытаемся достать из файла
+                        List<String> toreglist = G_S_L(IceServer.toreg, c, outputStream);//переделываем список подтвержденных пользователей в список неподтвержденных, который пытаемся достать из файла
                         if(toreglist == null)//и если чтение прошло успешно то продолжаем
                         {
                             return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                         }
-                        toreglist.add(bm);//добавляем в список новобранца
+                        toreglist.add(u.toString());//добавляем в список новобранца
                         //и записываем в файл
-                        if(AddMessage(toreglist, IceServer.toreg, c, outputStream))//и если запись прошла успешно то продолжаем
+                        if(Add_String_List(toreglist, IceServer.toreg, c, outputStream))//и если запись прошла успешно то продолжаем
                         {
                             return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                         }
@@ -214,7 +214,7 @@ public class ServeOneJabber extends Thread
                         System.out.println(new Date().toString() + " This is password");
                         try
                         {
-                            SendEmail.sendText(u.GetMail(), "Пароль", u.GetPass());//значит можно взять из объекта пароль и отправить его на адрес пользователя
+                            SendEmail.sendText(u.GetMail(), "ICENGO Пароль", "Ваш пароль - " + u.GetPass() + "\nЕсли у вас не получается войти под этим паролем, обратитесь к администратору");//значит можно взять из объекта пароль и отправить его на адрес пользователя
                         }
                         catch (MessagingException ex)
                         {
@@ -265,7 +265,7 @@ public class ServeOneJabber extends Thread
         String fullname = dir + "/" + filename;//полный путь до файла лога
         
         Itog myitog;//объект итогов пользователя
-        List<BaseMessage> loglist = Get_BM_List(fullname, BaseMessage.class, outputStream);//читаем лист объектов из файла логов
+        List<BaseMessage> loglist = G_BM_L(fullname, BaseMessage.class, outputStream);//читаем лист объектов из файла логов
         if(loglist == null)//и если чтение прошло успешно то продолжаем
         {
             return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
@@ -319,11 +319,13 @@ public class ServeOneJabber extends Thread
                 {
                     System.out.println(new Date().toString() + " поймали ещё одного лох-несса " + bm.toString() + 
                             " " + " Logsession " + loglist);
+                    Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("loch-ness_bug"),"неудачная попытка ответить клиенту что поймали ещё одного лох-несса");//оповещаем клиента о том, что поймали ещё одного лох-несса
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
                 //и лезет куда-то ещё 0о
                 System.out.println(new Date().toString() + " что-то новенькое 0о " + bm.toString() + 
                         " " + " Logsession " + loglist);
+                    Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("new_bug"),"неудачная попытка ответить клиенту что что-то новенькое 0о");//оповещаем клиента о том, что что-то новенькое 0о
                 return;//не позволяем программе дальше обрабатывать информацию
             }
             //Сюда мы с Тошиком напишем реакцию сервера на каждый из классов, которые может принять сервер...
@@ -331,6 +333,21 @@ public class ServeOneJabber extends Thread
             Class c = bm.getClass();
             if (c == ping.class)//от клиента пришло сообщение о том, что клиент начал работать на определенном этапе
             {
+                if(bm.getTypeMessage() == BaseMessage.TypeMessage.notification)//и это сообщение с названием магазина
+                {
+                    ping p = (ping) bm;
+                    myitog.date_open = p.GetDate();
+                    myitog.day_otw = API.weektoString(myitog.date_open.getDay());
+                    myitog.nameshop = p.GetPing();
+                    System.out.println(new Date().toString() + " открытие " + p.GetPing());
+                    loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
+                    System.out.println(new Date().toString() + " Set_Itog");
+                    //записываем лист в файл лога
+                    if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
+                    {
+                        return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
+                    }
+                }
                 loglist.add(bm);//просто добавляем это сообщение в лист объектов лога
                 //записываем лист в файл лога
                 if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
@@ -348,23 +365,26 @@ public class ServeOneJabber extends Thread
             {
                 System.out.println(new Date().toString() + " DFR " + authuser.GetMail());
                 DataForRecord p = (DataForRecord) bm;
-                System.out.println(new Date().toString() + Translate(p.getTypeEvent()));
+                System.out.println(new Date().toString() + "  " + Translate(p.getTypeEvent()));
                 if (p.getTypeEvent() == DataForRecord.TypeEvent.open || p.getTypeEvent() == DataForRecord.TypeEvent.close)//и это касается конкретно открытия или закрытия смены 
                 {
                     String pdfname;//имя для PDF отчёта
                     loglist.add(bm);//добавляем это сообщение в лист объектов лога
-                    myitog = API.Calculate_Itog(authuser, loglist);//пересчитываем объект итогов
+                    myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
+                    System.out.println(new Date().toString() + " Calculate_Itog");
                     loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
+                    System.out.println(new Date().toString() + " Set_Itog");
                     //записываем лист в файл лога
                     if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
                     {
                         return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                     }
-                        pdfname = myitog.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
                     String mailtext = myitog.day_otw+"\n"+
                             "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
+                        pdfname = myitog.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.open)//если было открытие
                     {
+                        System.out.println(new Date().toString() + " имя для PDF отчёта " + pdfname);
                         try
                         {
                             CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
@@ -390,7 +410,15 @@ public class ServeOneJabber extends Thread
                     {
                         DataForRecord dfropen = API.Get_DFR(DataForRecord.TypeEvent.open, loglist);//пробуем добыть данные с открытия
                         DataForRecord dfrdrug = API.Get_DFR(DataForRecord.TypeEvent.drug, loglist);//пробуем добыть данные с приходами
+                        if(dfrdrug == null)
+                        {
+                            dfrdrug = new DataForRecord(IceServer.StringsConfigBM);
+                        }
                         DataForRecord dfrsteal = API.Get_DFR(DataForRecord.TypeEvent.steal, loglist);//уходами
+                        if(dfrsteal == null)
+                        {
+                            dfrsteal = new DataForRecord(IceServer.StringsConfigBM);
+                        }
                         try
                         {
                             CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
@@ -461,7 +489,7 @@ public class ServeOneJabber extends Thread
                             Answer(c, outputStream, (BaseMessage) new IceError("MessagingError"),"неудачная попытка ответить клиенту что письмо отправить не удалось");//попытка ответить клиенту что письмо отправить не удалось
                             return;//не позволяем программе дальше обрабатывать информацию
                         }
-                        System.out.println(new Date().toString() + pdfname + " PDF send to " + mail);
+                        System.out.println(new Date().toString() + "  " + pdfname + " PDF send to " + mail);
                     }
                     if(Answer(Itog.class, outputStream, (BaseMessage) myitog,"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
                     {
@@ -533,11 +561,17 @@ public class ServeOneJabber extends Thread
     //при успешном исходе возвращается лист объектов класса BaseMessage
     //в случае если произошла проблема выводится сообщение с сутью проблемы и совершается попытка ответить клиенту, о том что получить лист объектов класса BaseMessage не удалось
     //при неудачном исходе возвращается null
-    private List<BaseMessage> Get_BM_List(String path, Class c, ObjectOutputStream os)
+    private List<BaseMessage> G_BM_L(String path, Class c, ObjectOutputStream os)
     {
         List<BaseMessage> bmlist;
         try
         {
+            File f = new File(path);
+            if (!f.exists())
+            {
+                f.createNewFile();
+                System.out.println(new Date().toString() + " createNewFile " + path);
+            }
             bmlist = API.Get_BM_List(path); //список с данными пользователей
             if(bmlist == null)//если списка не существует
             {
@@ -549,15 +583,44 @@ public class ServeOneJabber extends Thread
         catch (IOException ex)
         {
             System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла" +"\n" +
-                    c.toString() + "неудачная попытка получить список объектов лога");
-            System.out.println(new Date().toString() + ex.toString());
+                    c.toString() + " неудачная попытка получить список объектов лога");
+            System.out.println(new Date().toString() + " " + ex.toString());
             Answer(c, os, (BaseMessage) new IceError("ReadAllObjectsError"),"неудачная попытка ответить клиенту что чтение из файла не удалось");//оповещаем клиента о том, что неудачная попытка получить список объектов лога
         }
         catch (ClassNotFoundException ex)
         {
             System.out.println(new Date().toString() + " WTF O_o" + " проблема с классами" +"\n" +
-                    c.toString() + "класс который достаём не тот BaseMessage");
-            System.out.println(new Date().toString() + ex.toString());
+                    c.toString() + " класс который достаём не тот BaseMessage");
+            System.out.println(new Date().toString() + " " + ex.toString());
+            Answer(c, os, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
+        }
+        return null;//не позволяем программе дальше обрабатывать информацию
+    }
+    private List<String> G_S_L(String path, Class c, ObjectOutputStream os)
+    {
+        List<String> bmlist;
+        try
+        {
+            bmlist = API.Get_String_List(path); //список с данными пользователей
+            if(bmlist == null)//если списка не существует
+            {
+                bmlist = new ArrayList();//его нужно создать
+                API.Add_String_List(bmlist, path);//и записать в файл
+            }
+            return bmlist;//всё круто
+        }
+        catch (IOException ex)
+        {
+            System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением из файла" +"\n" +
+                    c.toString() + " неудачная попытка получить список пользователей");
+            System.out.println(new Date().toString() + " " + ex.toString());
+            Answer(c, os, (BaseMessage) new IceError("ReadAllObjectsError"),"неудачная попытка ответить клиенту что чтение из файла не удалось");//оповещаем клиента о том, что неудачная попытка получить список пользователей
+        }
+        catch (ClassNotFoundException ex)
+        {
+            System.out.println(new Date().toString() + " WTF O_o" + " проблема с классами" +"\n" +
+                    c.toString() + " класс который достаём не тот BaseMessage");
+            System.out.println(new Date().toString() + " " + ex.toString());
             Answer(c, os, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
         }
         return null;//не позволяем программе дальше обрабатывать информацию
@@ -586,6 +649,29 @@ public class ServeOneJabber extends Thread
                     c.toString() + "класс который получили не тот BaseMessage");
             System.out.println(new Date().toString() + ex.toString());
             Answer(c, os, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
+        }
+        return true;//не позволяем программе дальше обрабатывать информацию
+    }
+    private boolean Add_String_List(List<String> bmlist, String path, Class c, ObjectOutputStream os)
+    {
+        try
+        {
+            API.Add_String_List(bmlist, path);//и записать в файл
+            return false;
+        }
+        catch (IOException ex)
+        {
+            System.out.println(new Date().toString() + " WTF O_o" + " проблема с записью в файл для регистрации" +"\n" +
+                    c.toString() + "неудачная попытка записать список регистрирующихся");
+            System.out.println(new Date().toString() + ex.toString());
+            Answer(c, os, (BaseMessage) new IceError("WriteAllObjectsError"),"попытка ответить клиенту что запись в файл не удалось");//оповещаем клиента о том, что неудачная попытка записать список объектов лога
+        }
+        catch (ClassNotFoundException ex)
+        {
+            System.out.println(new Date().toString() + " WTF O_o" + " проблема с классами" +"\n" +
+                    c.toString() + "класс который получили не тот String");
+            System.out.println(new Date().toString() + ex.toString());
+            Answer(c, os, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот String");//оповещаем клиента о том, что класс который получили не тот BaseMessage
         }
         return true;//не позволяем программе дальше обрабатывать информацию
     }
