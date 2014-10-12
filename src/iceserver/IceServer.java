@@ -129,9 +129,9 @@ public class IceServer
             api.SendEmail.SetProp(al.get(8).split(" ")[0], al.get(8).split(" ")[1], al.get(7).split(" "));
             System.out.println("SendEmail.SetProp good");
             //
-//        PrintStream st = new PrintStream(new FileOutputStream(al.get(3) + "DEBUG.txt",true));
-//        System.setErr(st);
-//        System.setOut(st);
+        PrintStream st = new PrintStream(new FileOutputStream(al.get(3) + "DEBUG.txt",true));
+        System.setErr(st);
+        System.setOut(st);
         ServerSocket s = new ServerSocket(Integer.parseInt(al.get(9)));
         System.out.println(new Date().toString() +"\n\n-\tServer Started");
         //

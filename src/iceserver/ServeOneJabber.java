@@ -166,6 +166,7 @@ public class ServeOneJabber extends Thread
                         {
                             return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                         }
+                        u = (user) bm;
                         toreglist.add(u.toString());//добавляем в список новобранца
                         //и записываем в файл
                         if(Add_String_List(toreglist, IceServer.toreg, c, outputStream))//и если запись прошла успешно то продолжаем

@@ -1,7 +1,41 @@
-Exception in thread "main" java.net.BindException: Адрес уже используется
-	at java.net.PlainSocketImpl.socketBind(Native Method)
-	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:376)
-	at java.net.ServerSocket.bind(ServerSocket.java:376)
-	at java.net.ServerSocket.<init>(ServerSocket.java:237)
-	at java.net.ServerSocket.<init>(ServerSocket.java:128)
-	at iceserver.IceServer.main(IceServer.java:43)
+Fri Oct 10 07:05:10 MSK 2014
+
+-	Server Started
+Fri Oct 10 07:05:21 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 10 07:05:21 MSK 2014 Messaging()
+Fri Oct 10 07:05:22 MSK 2014 BaseMessage
+ device ON
+Fri Oct 10 07:05:29 MSK 2014 LastMessage
+Fri Oct 10 07:06:29 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 10 07:06:29 MSK 2014 Messaging()
+Fri Oct 10 07:06:33 MSK 2014 WTF O_o проблема с чтением объекта
+Fri Oct 10 07:06:33 MSK 2014java.io.InvalidClassException: ice.user; local class incompatible: stream classdesc serialVersionUID = -3987323264502075872, local class serialVersionUID = 7115249820899732887
+Fri Oct 10 07:13:32 MSK 2014
+
+-	Server Started
+Fri Oct 10 07:13:37 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 10 07:13:37 MSK 2014 Messaging()
+Fri Oct 10 07:13:40 MSK 2014 BaseMessage
+ device ON
+Fri Oct 10 07:13:49 MSK 2014 LastMessage
+Fri Oct 10 07:14:36 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 10 07:14:36 MSK 2014 Messaging()
+Fri Oct 10 07:14:39 MSK 2014 user
+Exception in thread "Thread-1" java.lang.NullPointerException
+	at iceserver.ServeOneJabber.Messaging(ServeOneJabber.java:169)
+	at iceserver.ServeOneJabber.run(ServeOneJabber.java:39)
+Fri Oct 10 07:20:05 MSK 2014
+
+-	Server Started
+Fri Oct 10 07:20:08 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 10 07:20:08 MSK 2014 Messaging()
+Fri Oct 10 07:20:12 MSK 2014 BaseMessage
+ device ON
+Fri Oct 10 07:20:16 MSK 2014 LastMessage
+Fri Oct 10 07:21:00 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 10 07:21:00 MSK 2014 Messaging()
+Fri Oct 10 07:21:03 MSK 2014 user
+Fri Oct 10 07:21:03 MSK 2014 Registration successful
+Fri Oct 10 07:21:09 MSK 2014 Send Registration Mail
+Fri Oct 10 07:21:09 MSK 2014 Registration request send
+Fri Oct 10 07:21:11 MSK 2014 LastMessage
