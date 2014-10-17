@@ -1,41 +1,192 @@
-Fri Oct 10 07:05:10 MSK 2014
+Fri Oct 17 05:23:21 MSK 2014
 
 -	Server Started
-Fri Oct 10 07:05:21 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
-Fri Oct 10 07:05:21 MSK 2014 Messaging()
-Fri Oct 10 07:05:22 MSK 2014 BaseMessage
+Fri Oct 17 05:23:32 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:23:32 MSK 2014 Messaging()
+Fri Oct 17 05:23:37 MSK 2014 BaseMessage
  device ON
-Fri Oct 10 07:05:29 MSK 2014 LastMessage
-Fri Oct 10 07:06:29 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
-Fri Oct 10 07:06:29 MSK 2014 Messaging()
-Fri Oct 10 07:06:33 MSK 2014 WTF O_o проблема с чтением объекта
-Fri Oct 10 07:06:33 MSK 2014java.io.InvalidClassException: ice.user; local class incompatible: stream classdesc serialVersionUID = -3987323264502075872, local class serialVersionUID = 7115249820899732887
-Fri Oct 10 07:13:32 MSK 2014
-
--	Server Started
-Fri Oct 10 07:13:37 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
-Fri Oct 10 07:13:37 MSK 2014 Messaging()
-Fri Oct 10 07:13:40 MSK 2014 BaseMessage
+Fri Oct 17 05:23:42 MSK 2014 LastMessage
+Fri Oct 17 05:23:53 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:23:53 MSK 2014 Messaging()
+Fri Oct 17 05:23:54 MSK 2014 login
+Fri Oct 17 05:23:54 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:23:54 MSK 2014 createNewFile /home/toha/IceServer/log/2014/10/17/supers/kepocnhh@gmail.com/Тодин 17.10.2014 0
+Fri Oct 17 05:23:54 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:24:02 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:24:02 MSK 2014 Messaging()
+Fri Oct 17 05:24:03 MSK 2014 login
+Fri Oct 17 05:24:03 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:24:03 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:24:06 MSK 2014 открытие Kepo
+Fri Oct 17 05:24:06 MSK 2014 Set_Itog
+Fri Oct 17 05:24:06 MSK 2014 ping Kepo kepocnhh@gmail.com
+Fri Oct 17 05:24:06 MSK 2014 Бабай!
+Fri Oct 17 05:24:09 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:24:09 MSK 2014 Messaging()
+Fri Oct 17 05:24:10 MSK 2014 login
+Fri Oct 17 05:24:10 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:24:10 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:24:11 MSK 2014 ping open kepocnhh@gmail.com
+Fri Oct 17 05:24:12 MSK 2014 Бабай!
+Fri Oct 17 05:24:34 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 05:24:34 MSK 2014java.io.EOFException
+Fri Oct 17 05:25:34 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:25:34 MSK 2014 Messaging()
+Fri Oct 17 05:25:35 MSK 2014 login
+Fri Oct 17 05:25:35 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:25:35 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:25:36 MSK 2014 DFR kepocnhh@gmail.com
+Fri Oct 17 05:25:36 MSK 2014  Открытие
+Fri Oct 17 05:25:36 MSK 2014 Calculate_Itog
+Fri Oct 17 05:25:36 MSK 2014 Set_Itog open
+Fri Oct 17 05:25:36 MSK 2014 имя для PDF отчёта Kepo Тодин 17.10.2014 0 Открытие
+Fri Oct 17 05:25:43 MSK 2014  Kepo Тодин 17.10.2014 0 Открытие PDF send to iceandgoit@gmail.com
+Fri Oct 17 05:25:45 MSK 2014  Kepo Тодин 17.10.2014 0 Открытие PDF send to rocessor666@gmail.com
+Fri Oct 17 05:25:45 MSK 2014 DFR request send Открытие
+Fri Oct 17 05:25:46 MSK 2014 Бабай!
+Fri Oct 17 05:39:03 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:39:03 MSK 2014 Messaging()
+Fri Oct 17 05:39:06 MSK 2014 BaseMessage
  device ON
-Fri Oct 10 07:13:49 MSK 2014 LastMessage
-Fri Oct 10 07:14:36 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
-Fri Oct 10 07:14:36 MSK 2014 Messaging()
-Fri Oct 10 07:14:39 MSK 2014 user
-Exception in thread "Thread-1" java.lang.NullPointerException
-	at iceserver.ServeOneJabber.Messaging(ServeOneJabber.java:169)
-	at iceserver.ServeOneJabber.run(ServeOneJabber.java:39)
-Fri Oct 10 07:20:05 MSK 2014
-
--	Server Started
-Fri Oct 10 07:20:08 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
-Fri Oct 10 07:20:08 MSK 2014 Messaging()
-Fri Oct 10 07:20:12 MSK 2014 BaseMessage
+Fri Oct 17 05:39:12 MSK 2014 LastMessage
+Fri Oct 17 05:56:49 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:56:49 MSK 2014 Messaging()
+Fri Oct 17 05:56:50 MSK 2014 BaseMessage
  device ON
-Fri Oct 10 07:20:16 MSK 2014 LastMessage
-Fri Oct 10 07:21:00 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
-Fri Oct 10 07:21:00 MSK 2014 Messaging()
-Fri Oct 10 07:21:03 MSK 2014 user
-Fri Oct 10 07:21:03 MSK 2014 Registration successful
-Fri Oct 10 07:21:09 MSK 2014 Send Registration Mail
-Fri Oct 10 07:21:09 MSK 2014 Registration request send
-Fri Oct 10 07:21:11 MSK 2014 LastMessage
+Fri Oct 17 05:56:57 MSK 2014 LastMessage
+Fri Oct 17 05:57:32 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:57:32 MSK 2014 Messaging()
+Fri Oct 17 05:57:34 MSK 2014 login
+Fri Oct 17 05:57:34 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:57:34 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:58:20 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:58:20 MSK 2014 Messaging()
+Fri Oct 17 05:58:21 MSK 2014 login
+Fri Oct 17 05:58:21 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:58:21 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:58:23 MSK 2014 ping drug kepocnhh@gmail.com
+Fri Oct 17 05:58:25 MSK 2014 Бабай!
+Fri Oct 17 05:59:22 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 05:59:22 MSK 2014java.io.EOFException
+Fri Oct 17 05:59:30 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 05:59:30 MSK 2014 Messaging()
+Fri Oct 17 05:59:32 MSK 2014 login
+Fri Oct 17 05:59:32 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 05:59:32 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 05:59:34 MSK 2014 ping close kepocnhh@gmail.com
+Fri Oct 17 05:59:35 MSK 2014 Бабай!
+Fri Oct 17 06:03:35 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:03:35 MSK 2014 Messaging()
+Fri Oct 17 06:03:36 MSK 2014 login
+Fri Oct 17 06:03:36 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 06:03:36 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 06:03:37 MSK 2014 DFR kepocnhh@gmail.com
+Fri Oct 17 06:03:37 MSK 2014  Закрытие
+Fri Oct 17 06:03:37 MSK 2014 Calculate_Itog
+Fri Oct 17 06:03:37 MSK 2014 Set_Itog close
+Fri Oct 17 06:03:41 MSK 2014  Kepo Тодин 17.10.2014 0 Закрытие PDF send to iceandgoit@gmail.com
+Fri Oct 17 06:03:43 MSK 2014  Kepo Тодин 17.10.2014 0 Закрытие PDF send to rocessor666@gmail.com
+Fri Oct 17 06:03:43 MSK 2014 DFR request send Закрытие
+Fri Oct 17 06:03:44 MSK 2014 Бабай!
+Fri Oct 17 06:03:52 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:03:52 MSK 2014 Messaging()
+Fri Oct 17 06:03:54 MSK 2014 login
+Fri Oct 17 06:03:54 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 06:03:54 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 06:10:28 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:10:28 MSK 2014 Messaging()
+Fri Oct 17 06:10:29 MSK 2014 login
+Fri Oct 17 06:10:29 MSK 2014 Auth Successful kepocnhh@gmail.com
+Fri Oct 17 06:10:29 MSK 2014 Itog will be send to kepocnhh@gmail.com
+Fri Oct 17 06:12:03 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 06:12:03 MSK 2014java.io.EOFException
+Fri Oct 17 06:13:22 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 06:13:22 MSK 2014java.io.EOFException
+Fri Oct 17 06:13:57 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:13:57 MSK 2014 Messaging()
+Fri Oct 17 06:14:04 MSK 2014 BaseMessage
+ device ON
+Fri Oct 17 06:14:08 MSK 2014 LastMessage
+Fri Oct 17 06:20:24 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:20:24 MSK 2014 Messaging()
+Fri Oct 17 06:20:27 MSK 2014 BaseMessage
+ device ON
+Fri Oct 17 06:20:32 MSK 2014 LastMessage
+Fri Oct 17 06:21:06 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:21:06 MSK 2014 Messaging()
+Fri Oct 17 06:21:09 MSK 2014 login
+Fri Oct 17 06:21:09 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:21:09 MSK 2014 createNewFile /home/toha/IceServer/log/2014/10/17/Тодин 17.10.2014
+Fri Oct 17 06:21:09 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:21:36 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:21:36 MSK 2014 Messaging()
+Fri Oct 17 06:21:36 MSK 2014 login
+Fri Oct 17 06:21:36 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:21:36 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:21:38 MSK 2014 открытие Fhghgg
+Fri Oct 17 06:21:38 MSK 2014 Set_Itog
+Fri Oct 17 06:21:38 MSK 2014 ping Fhghgg rocessor666@gmail.com
+Fri Oct 17 06:21:39 MSK 2014 Бабай!
+Fri Oct 17 06:21:42 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:21:42 MSK 2014 Messaging()
+Fri Oct 17 06:21:43 MSK 2014 login
+Fri Oct 17 06:21:43 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:21:43 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:21:45 MSK 2014 ping open rocessor666@gmail.com
+Fri Oct 17 06:21:45 MSK 2014 Бабай!
+Fri Oct 17 06:21:46 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 06:21:46 MSK 2014java.io.EOFException
+Fri Oct 17 06:21:56 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:21:56 MSK 2014 Messaging()
+Fri Oct 17 06:21:57 MSK 2014 login
+Fri Oct 17 06:21:57 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:21:57 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:22:00 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:22:00 MSK 2014 Messaging()
+Fri Oct 17 06:22:00 MSK 2014 login
+Fri Oct 17 06:22:00 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:22:00 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:22:01 MSK 2014 ping open rocessor666@gmail.com
+Fri Oct 17 06:22:01 MSK 2014 Бабай!
+Fri Oct 17 06:22:06 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:22:06 MSK 2014 Messaging()
+Fri Oct 17 06:22:07 MSK 2014 login
+Fri Oct 17 06:22:07 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:22:07 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:22:09 MSK 2014 DFR rocessor666@gmail.com
+Fri Oct 17 06:22:09 MSK 2014  Открытие
+Fri Oct 17 06:22:09 MSK 2014 Calculate_Itog
+Fri Oct 17 06:22:09 MSK 2014 Set_Itog open
+Fri Oct 17 06:22:09 MSK 2014 имя для PDF отчёта Fhghgg Тодин 17.10.2014 Открытие
+Fri Oct 17 06:22:13 MSK 2014  Fhghgg Тодин 17.10.2014 Открытие PDF send to iceandgoit@gmail.com
+Fri Oct 17 06:22:15 MSK 2014  Fhghgg Тодин 17.10.2014 Открытие PDF send to rocessor666@gmail.com
+Fri Oct 17 06:22:15 MSK 2014 DFR request send Открытие
+Fri Oct 17 06:22:16 MSK 2014 Бабай!
+Fri Oct 17 06:22:33 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:22:33 MSK 2014 Messaging()
+Fri Oct 17 06:22:34 MSK 2014 login
+Fri Oct 17 06:22:34 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:22:34 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:22:40 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:22:40 MSK 2014 Messaging()
+Fri Oct 17 06:22:40 MSK 2014 login
+Fri Oct 17 06:22:40 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:22:40 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:22:40 MSK 2014 ping drug rocessor666@gmail.com
+Fri Oct 17 06:22:41 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 06:22:41 MSK 2014java.io.EOFException
+Fri Oct 17 06:22:41 MSK 2014 WTF O_o проблема с чтением объекта AuthMessaging
+Fri Oct 17 06:22:41 MSK 2014java.io.EOFException
+Fri Oct 17 06:22:41 MSK 2014 Бабай!
+Fri Oct 17 06:22:44 MSK 2014 Goto ServeOneJabber. InetAddress 0.0.0.0/0.0.0.0
+Fri Oct 17 06:22:44 MSK 2014 Messaging()
+Fri Oct 17 06:22:44 MSK 2014 login
+Fri Oct 17 06:22:44 MSK 2014 Auth Successful rocessor666@gmail.com
+Fri Oct 17 06:22:44 MSK 2014 Itog will be send to rocessor666@gmail.com
+Fri Oct 17 06:22:45 MSK 2014 DFR rocessor666@gmail.com
+Fri Oct 17 06:22:45 MSK 2014  Приход
+Fri Oct 17 06:22:45 MSK 2014 Calculate_Itog
+Fri Oct 17 06:22:45 MSK 2014 Set_Itog open
+Fri Oct 17 06:22:45 MSK 2014 DFRrequest Тодин 17.10.2014
+Fri Oct 17 06:22:45 MSK 2014 DFR request send Приход
+Fri Oct 17 06:22:45 MSK 2014 Бабай!

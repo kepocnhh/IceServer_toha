@@ -374,7 +374,7 @@ public class ServeOneJabber extends Thread
                     myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
                     System.out.println(new Date().toString() + " Calculate_Itog");
                     loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
-                    System.out.println(new Date().toString() + " Set_Itog");
+                    System.out.println(new Date().toString() + " Set_Itog " + myitog.SS.toString());
                     //записываем лист в файл лога
                     if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
                     {
@@ -496,7 +496,7 @@ public class ServeOneJabber extends Thread
                     {
                         return;//не позволяем программе дальше обрабатывать информацию
                     }
-                    System.out.println(new Date().toString() + " DFR request send" + " " + Translate(p.getTypeEvent()));
+                    System.out.println(new Date().toString() + " DFR request send" + " " + Translate(p.getTypeEvent()) + " " + myitog.SS.toString());
                     continue;
                 }
                 if (p.getTypeEvent() == DataForRecord.TypeEvent.drug || p.getTypeEvent() == DataForRecord.TypeEvent.steal)//а если всё же пришла дата по приходу или уходу
@@ -511,6 +511,10 @@ public class ServeOneJabber extends Thread
                     {
                         loglist.add(bm);
                     }
+                    myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
+                    System.out.println(new Date().toString() + " Calculate_Itog");
+                    loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
+                    System.out.println(new Date().toString() + " Set_Itog " + myitog.SS.toString());
                     //записываем лист в файл лога
                     if(AddMessage(loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
                     {
