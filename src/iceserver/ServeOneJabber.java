@@ -15,6 +15,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.MessagingException;
 
 /**
@@ -297,7 +299,7 @@ public class ServeOneJabber extends Thread
             catch (IOException ex)
             {
                 System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением объекта"+ " AuthMessaging");
-                System.out.println(new Date().toString() + ex.toString());
+                System.out.println(new Date().toString() + "  " + ex.toString());
                 Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ReadObject"),"неудачная попытка ответить клиенту что проблема с чтением объекта");//оповещаем клиента о том, что проблема с чтением объекта
                 return;//не позволяем программе дальше обрабатывать информацию
             }
@@ -383,9 +385,9 @@ public class ServeOneJabber extends Thread
                     String mailtext = myitog.day_otw+"\n"+
                             "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
                         pdfname = myitog.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
+                        System.out.println(new Date().toString() + " имя для PDF отчёта " + pdfname);
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.open)//если было открытие
                     {
-                        System.out.println(new Date().toString() + " имя для PDF отчёта " + pdfname);
                         try
                         {
                             CreatePDF._CreatePDF(IceServer.StringsConfigBM, authuser,
@@ -492,7 +494,31 @@ public class ServeOneJabber extends Thread
                         }
                         System.out.println(new Date().toString() + "  " + pdfname + " PDF send to " + mail);
                     }
+                        String info = " actual Itog:";
+                        if(myitog.SS!=null)
+                            info += "\n | StatusSession - " + myitog.SS.toString();
+                        if(myitog.date_open!=null)
+                            info += "\n | Date open - " + myitog.date_open;
+                        if(myitog.date_close!=null)
+                            info += "\n | Date close - " + myitog.date_close;
+                        if(myitog.nameshop!=null)
+                            info += "\n | Name shop - " + myitog.nameshop.toString();
+                        System.out.println(new Date().toString() + info);
+                    try
+                    {
+                        outputStream.reset();
+                    }
+                    catch (IOException ex)
+                    {
+                            System.out.println(new Date().toString() + " WTF O_o" + " проблема с очисткой стрима" +"\n" +
+                                    c.toString() + "не удалось очистить стрим");
+                            System.out.println(new Date().toString() + ex.toString());
+                            Answer(c, outputStream, (BaseMessage) new IceError("ResetStreamError"),"неудачная попытка ответить клиенту, что не удалось очистить стрим");//попытка ответить клиенту, что не удалось очистить стрим
+                            return;//не позволяем программе дальше обрабатывать информацию
+                    }
+                    //if(Answer(Itog.class, outputStream, (BaseMessage) new Itog(),"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
                     if(Answer(Itog.class, outputStream, (BaseMessage) myitog,"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
+                    //if(Answer(Itog.class, outputStream, (BaseMessage) new ping("TEST!!!"),"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
                     {
                         return;//не позволяем программе дальше обрабатывать информацию
                     }
