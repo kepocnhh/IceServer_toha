@@ -79,14 +79,14 @@ public class ServeOneJabber extends Thread
                 {
                     System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением объекта");
                     System.out.println(new Date().toString() + ex.toString());
-                    Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ReadObject"),"неудачная попытка ответить клиенту что проблема с чтением объекта");//оповещаем клиента о том, что проблема с чтением объекта
+                    Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ReadObject"),"неудачная попытка ответить клиенту, что проблема с чтением объекта");//оповещаем клиента о том, что проблема с чтением объекта
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
                 catch (ClassNotFoundException ex)
                 {
                     System.out.println(new Date().toString() + " WTF O_o" + " проблемма с классами");
                     System.out.println(new Date().toString() + ex.toString());
-                    Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
+                    Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту, что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
                 if(bm == null)
@@ -465,6 +465,29 @@ public class ServeOneJabber extends Thread
                             "--------------------"+"\n"+
                             "Оклад "+myitog.salary+"\n"+
                             "ИТОГО ЗП "+((myitog.salary+myitog.amount_k*authuser.bonus)-myitog.get_summ_mulct());
+                        if(authuser.GetSuper())
+                        {
+                            int numfile = Integer.parseInt(filename.split("_")[1]);
+                            String filename_next = filename.split("_")[0] + (numfile+1);//создаём имя для файла лога от пользователя
+                            String fullname_next = dir + "/" + filename_next;//полный путь до файла лога
+                                File f = new File(fullname_next);
+                                if (!f.exists())
+                                {
+                                    try
+                                    {
+                                        f.createNewFile();
+                                    }
+                                    catch (IOException ex)
+                                    {
+                                        System.out.println(new Date().toString() + " WTF O_o" + " проблема с созданием файла" +"\n" +
+                                                c.toString() + "не удалось создать новый файл");
+                                        System.out.println(new Date().toString() + ex.toString());
+                                        Answer(c, outputStream, (BaseMessage) new IceError("ResetStreamError"),"неудачная попытка ответить клиенту, что не удалось создать новый файл");//попытка ответить клиенту, что не удалось создать новый файл
+                                        return;//не позволяем программе дальше обрабатывать информацию
+                                    }
+                                }
+                            System.out.println(new Date().toString() + " Create next file Successful " + authuser.GetMail());
+                        }
                     }
                     for (String mail : SendEmail.maillist)//отправляем письмо с отчётом и коментарием всем адресам в списке SendEmail.maillist
                     {
@@ -516,9 +539,7 @@ public class ServeOneJabber extends Thread
                             Answer(c, outputStream, (BaseMessage) new IceError("ResetStreamError"),"неудачная попытка ответить клиенту, что не удалось очистить стрим");//попытка ответить клиенту, что не удалось очистить стрим
                             return;//не позволяем программе дальше обрабатывать информацию
                     }
-                    //if(Answer(Itog.class, outputStream, (BaseMessage) new Itog(),"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
                     if(Answer(Itog.class, outputStream, (BaseMessage) myitog,"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
-                    //if(Answer(Itog.class, outputStream, (BaseMessage) new ping("TEST!!!"),"неудачная попытка отправить клиенту итоги"))//отправляем итоги клиенту
                     {
                         return;//не позволяем программе дальше обрабатывать информацию
                     }
@@ -636,6 +657,11 @@ public class ServeOneJabber extends Thread
             if(bmlist == null)//если списка не существует
             {
                 bmlist = new ArrayList();//его нужно создать
+                File f = new File(path);
+                if(!f.exists())
+                {
+                    f.createNewFile();
+                }
                 API.Add_String_List(bmlist, path);//и записать в файл
             }
             return bmlist;//всё круто
@@ -761,7 +787,7 @@ public class ServeOneJabber extends Thread
             {
                 num = 0;
             }
-            FileName += " " + num;
+            FileName += "_" + num;
         }
         return FileName;
     }
