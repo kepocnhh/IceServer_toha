@@ -15,8 +15,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.MessagingException;
 
 /**
@@ -27,6 +25,15 @@ public class ServeOneJabber extends Thread
 {
 //Поля////////////////////////////////////////////////////////////////////////////////////
     private Socket socket;
+    private String[] results = (
+            "[ OK ]"//0
+            +"\t"+
+            "[ ER ]"//1
+            +"\t"+
+            "[Warn]"//2
+            +"\t"+
+            "[info]"//3
+            ).split("\t");
     
 //Конструкторы/////////////////////////////////////////////////////////////////////////////
     public ServeOneJabber(Socket s) throws IOException
@@ -45,8 +52,8 @@ public class ServeOneJabber extends Thread
         }
         catch (IOException ex)
         {
-            System.out.println(new Date().toString() + " WTF O_o" + " Socket");
-            System.out.println(new Date().toString() + ex.toString());
+            add_log(1,"run","Socket error");
+            add_log(ex.getMessage());
         }
     }
     
@@ -54,7 +61,7 @@ public class ServeOneJabber extends Thread
     //ДО АВТОРИЗАЦИИ
     private void Messaging()
     {
-        System.out.println(new Date().toString() + " Messaging()");
+            add_log(0,"Messaging","going in ->");
         ObjectInputStream inputStream;
         ObjectOutputStream outputStream;
         try
@@ -64,8 +71,8 @@ public class ServeOneJabber extends Thread
         }
         catch (IOException ex)
         {
-            System.out.println(new Date().toString() + " WTF O_o" + " Messaging");
-            System.out.println(new Date().toString() + ex.toString());
+            add_log(1,"Messaging","Messaging error");
+            add_log(ex.getMessage());
             return;//не позволяем программе дальше обрабатывать информацию
         }
             BaseMessage bm;
@@ -77,41 +84,42 @@ public class ServeOneJabber extends Thread
                 }
                 catch (IOException ex)
                 {
-                    System.out.println(new Date().toString() + " WTF O_o" + " проблема с чтением объекта");
-                    System.out.println(new Date().toString() + ex.toString());
+                    add_log(1,"Messaging","проблема с чтением объекта");
+                    add_log(ex.getMessage());
                     Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ReadObject"),"неудачная попытка ответить клиенту, что проблема с чтением объекта");//оповещаем клиента о том, что проблема с чтением объекта
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
                 catch (ClassNotFoundException ex)
                 {
-                    System.out.println(new Date().toString() + " WTF O_o" + " проблемма с классами");
-                    System.out.println(new Date().toString() + ex.toString());
+                    add_log(1,"Messaging","проблема с классами");
+                    add_log(ex.getMessage());
                     Answer(BaseMessage.class, outputStream, (BaseMessage) new IceError("ClassNotFoundError"),"неудачная попытка ответить клиенту, что класс который получили не тот BaseMessage");//оповещаем клиента о том, что класс который получили не тот BaseMessage
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
                 if(bm == null)
                 {
-                    System.out.println(new Date().toString() + " while" + " break");
+                    add_log(3,"Messaging","while break");
                     break;
                 }
                 Class c = bm.getClass();
                 if (c == LastMessage.class)//принятый объект является уведомлением об окончании связи между клиентом и сервером
                 {
-                    System.out.println(new Date().toString() + " LastMessage");
+                    add_log(3,"Messaging","LastMessage");
                     return;
                 }
                 if (c == BaseMessage.class)//принято сообщение о том, что клиентское приложение запущено 
                 {
+                    add_log(3,"Messaging","BaseMessage");
                     if(bm.getTypeMessage() == BaseMessage.TypeMessage.notification)
                     {
-                        System.out.println(new Date().toString() + " BaseMessage");
+                        add_log(3,"Messaging","TypeMessage.notification");
                         if (bm.GetVersion().equals(IceServer.version))//если версия клиентского приложения актуальна
                         {
                             if(Answer(c, outputStream, (BaseMessage) IceServer.StringsConfigBM,"версия клиентского приложения актуальна"))//отправляем клиенту объект с необходимой информацией
                             {
                                 return;//не позволяем программе дальше обрабатывать информацию
                             }
-                            System.out.println(" device ON");
+                            add_log(0,"Messaging","device ON");
                         }
                         else//а если нет
                         {
@@ -119,11 +127,11 @@ public class ServeOneJabber extends Thread
                             {
                                 return;//не позволяем программе дальше обрабатывать информацию
                             }
-                            System.out.println(new Date().toString() + " Еries to use the old version of the library");
+                            add_log(2,"Messaging","Еries to use the old version of the library");
                         }
                         continue;
                     }
-                    System.out.println(new Date().toString() + " WTF O_o" + "BaseMessage not notification");
+                    add_log(1,"Messaging","BaseMessage not notification");
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
                 //если вы дошли до сюда, значит вы хотите работать с данными пользователей...
@@ -131,11 +139,12 @@ public class ServeOneJabber extends Thread
                 List<String> userlist = G_S_L(IceServer.accpath, c, outputStream);//читаем лист объектов из файла с аккаунтами
                 if(userlist == null)//и если чтение прошло успешно то продолжаем
                 {
+                    add_log(1,"Messaging","userlist == null");
                     return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                 }
                 if (c == login.class)//Авторизация пользователя
                 {
-                    System.out.println(new Date().toString() + " login");
+                    add_log(3,"Messaging","login");
                     user u = API.Get_user(((login) bm).get_log(), userlist); //попытка добыть объект данных пользователя по заданному логину
                     if(u != null)//если добыли
                     {
@@ -146,11 +155,11 @@ public class ServeOneJabber extends Thread
                         }
                         else
                         {
-                            System.out.println(new Date().toString() + " wrong password");//логин совпал, а пароль нет
+                            add_log(2,"Messaging","wrong password");//логин совпал, а пароль нет
                         }
                     }
                     //если не добыли
-                    System.out.println(new Date().toString() + " Auth not successful");//нужно вывести сообщение о неудаче
+                    add_log(2,"Messaging","Auth not successful");//нужно вывести сообщение о неудаче
                     if(Answer(c, outputStream, (BaseMessage) new IceError("AuthNotSuccessful"),"неудачная попытка ответить клиенту что авторизация не удалась"))//и ответить соответственно клиенту
                     {
                         return;//не позволяем программе дальше обрабатывать информацию
@@ -159,7 +168,7 @@ public class ServeOneJabber extends Thread
                 }
                 if (c == user.class)//Добавление заявки на регистрацию
                 {
-                    System.out.println(new Date().toString() + " user");
+                    add_log(3,"Messaging","user");
                     user u = API.Get_user(((user) bm).GetMail(), userlist);//попытка добыть объект данных пользователя по заданному логину
                     if(u == null)//если не добыли (это хорошо, потому что мыло не занято)
                     {
@@ -371,6 +380,18 @@ public class ServeOneJabber extends Thread
                 System.out.println(new Date().toString() + "  " + Translate(p.getTypeEvent()));
                 if (p.getTypeEvent() == DataForRecord.TypeEvent.open || p.getTypeEvent() == DataForRecord.TypeEvent.close)//и это касается конкретно открытия или закрытия смены 
                 {
+                    if(myitog.SS != Itog.StatusSession.not_open && p.getTypeEvent() == DataForRecord.TypeEvent.open)
+                    {
+                            System.out.println(new Date().toString() + " WTF O_o" + " проблема с синхронизацией"+ " " + Translate(p.getTypeEvent()) + " при " + myitog.SS);
+                            Answer(c, outputStream, (BaseMessage) new IceError("SyncOpenError"),"неудачная попытка ответить клиенту, что проблема с синхронизацией"+ " " + Translate(p.getTypeEvent()) );//оповещаем клиента о том, что проблема с синхронизацией
+                            return;//не позволяем программе дальше обрабатывать информацию
+                    }
+                    if(myitog.SS == Itog.StatusSession.not_open && p.getTypeEvent() == DataForRecord.TypeEvent.close)
+                    {
+                            System.out.println(new Date().toString() + " WTF O_o" + " проблема с синхронизацией"+ " " + Translate(p.getTypeEvent()) + " при " + myitog.SS);
+                            Answer(c, outputStream, (BaseMessage) new IceError("SyncCloseError"),"неудачная попытка ответить клиенту, что проблема с синхронизацией"+ " " + Translate(p.getTypeEvent()) );//оповещаем клиента о том, что проблема с синхронизацией
+                            return;//не позволяем программе дальше обрабатывать информацию
+                    }
                     String pdfname;//имя для PDF отчёта
                     loglist.add(bm);//добавляем это сообщение в лист объектов лога
                     myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
@@ -789,7 +810,7 @@ public class ServeOneJabber extends Thread
             }
             FileName += "_" + num;
         }
-        return FileName;
+        return FileName + ".ice";
     }
 
     //перевод из перечеслений DataForRecord.TypeEvent в String на русском
@@ -829,5 +850,22 @@ public class ServeOneJabber extends Thread
             return "Промоутер";
         }
         return "ERROR";
+    }
+    
+    //добавление строки с подписью в отладочный лог
+    private  void add_log(int n, String u, String s)
+    {
+        System.out.println("[" + date_to_string(new Date())  + "]" + " " +results[n]+ " " + "[" +u+ "]" + " "  + s);
+    }
+    private  void add_log(String s)
+    {
+        System.out.println(s);
+    }
+    //конвертация даты
+    private  String date_to_string(Date d)
+    {
+        return "" + (d.getYear()+1900) + "." + (d.getMonth()+1) + "." + d.getDate()
+                + "|" + 
+                d.getHours()+ "." +CreatePDF.minutes(d.getMinutes()+"")+ "." +CreatePDF.minutes(d.getSeconds()+"");
     }
 }
