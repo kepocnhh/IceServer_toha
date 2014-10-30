@@ -184,7 +184,7 @@ public class ServeOneJabber extends Thread
                         {
                             return;//а если не успешно, то не позволяем программе дальше обрабатывать информацию
                         }
-                        System.out.println(new Date().toString() + " Registration successful");
+                        add_log(0,"Messaging","Registration successful");
                         try
                         {
                             SendEmail.sendText(((user) bm).GetMail(), "Регистрация", "Привет от ICENGO!" +"\n" +
@@ -193,13 +193,13 @@ public class ServeOneJabber extends Thread
                         }
                         catch (MessagingException ex)
                         {
-                            System.out.println(new Date().toString() + " WTF O_o" + " проблема с электронной почтой" +"\n" +
-                                    c.toString() + "не удалось отправить письмо с результатом регистрации");
-                            System.out.println(new Date().toString() + ex.toString());
+                            add_log(1,"Messaging","проблема с электронной почтой" +"\n" +
+                                    c.toString() + " не удалось отправить письмо с результатом регистрации");
+                            add_log(1,"Messaging",ex.toString());
                             Answer(c, outputStream, (BaseMessage) new IceError("MessagingError"),"неудачная попытка ответить клиенту что письмо отправить не удалось");//попытка ответить клиенту что письмо отправить не удалось
                             return;//не позволяем программе дальше обрабатывать информацию
                         }
-                        System.out.println(new Date().toString() + " Send Registration Mail");
+                        add_log(0,"Messaging","Registration successful");
                         if(Answer(c, outputStream, (BaseMessage) new ping("RegistrationSuccessful"),"неудачная попытка ответить клиенту что всё прошло успешно"))//оповещаем клиента о том, что всё прошло успешно
                         {
                             return;//не позволяем программе дальше обрабатывать информацию
