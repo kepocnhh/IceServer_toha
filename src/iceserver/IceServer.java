@@ -86,15 +86,19 @@ public class IceServer
     static public String version;
     static public String toreg;
     static public Strings StringsConfigBM;
+    static public String bugreportmail;
+    static public Date actual_date;
     //
     //
-    static public void SetProp(String t,String a,String l,String v,String scf) throws IOException
+    static public void SetProp(String t,String a,String l,String v,String scf,String brm, Date d) throws IOException
     {
         accpath=a;
         logpath=l;
         version=v;
         toreg=t;
         StringsConfigBM = new Strings(scf);
+        bugreportmail = brm;
+        actual_date = d;
     }
     public static void main(String[] args) throws IOException, DocumentException
     {
@@ -107,7 +111,7 @@ public class IceServer
                 args[0]
                 //"G:\\Google Drive\\Stanley_projects\\NETBEANS\\IceServer_toha\\IceServer\\system2"
                 );
-        if(al.size() != 10)
+        if(al.size() != 11)
         {
             System.out.println("in port file" + "\n" +
                     "args[0] - accounts path" + "\n" +
@@ -118,21 +122,23 @@ public class IceServer
                     "args[5] - font path" + "\n" +
                     "args[6] - mail list" + "\n" +
                     "args[7] - your mail data" + "\n" +
-                    "args[8] - port"
+                    "args[8] - your bugreport mail" + "\n" +
+                    "args[9] - port"
                     );
             return;
         }
-            SetProp(al.get(1), al.get(2), al.get(3), al.get(4), al.get(5));
+            SetProp(al.get(1), al.get(2), al.get(3), al.get(4), al.get(5), al.get(9), new Date());
             System.out.println("IceServer.SetProp good");
             api.CreatePDF.SetProp(al.get(6));
             System.out.println("CreatePDF.SetProp good");
             api.SendEmail.SetProp(al.get(8).split(" ")[0], al.get(8).split(" ")[1], al.get(7).split(" "));
             System.out.println("SendEmail.SetProp good");
-            //
-        PrintStream st = new PrintStream(new FileOutputStream(al.get(3) + "DEBUG.txt",true));
+            String debugpath = al.get(3) + "DEBUG_" + (actual_date.getYear()+1900) + "." + (actual_date.getMonth()+1) + "." + actual_date.getDate()+ ".txt";
+            System.out.println("Log will write to [ " + debugpath + " ]");
+        PrintStream st = new PrintStream(new FileOutputStream(debugpath,true));
         System.setErr(st);
         System.setOut(st);
-        ServerSocket s = new ServerSocket(Integer.parseInt(al.get(9)));
+        ServerSocket s = new ServerSocket(Integer.parseInt(al.get(10)));
         System.out.println(new Date().toString() +"\n\n-\tServer Started");
         //
         //test();
