@@ -480,7 +480,7 @@ public class ServeOneJabber extends Thread
                             "-"+"\n"+
                             "Всего выручка "+(myitog.amount_t*authuser.price_t+myitog.amount_k*authuser.price_k+myitog.amount_s*authuser.price_s)+"\n"+
                             "--------------------"+"\n"+
-                            "Сумма бонуса "+myitog.amount_k*authuser.bonus+"\n"+
+                            "Сумма бонуса "+((myitog.amount_k*authuser.price_k)/100*authuser.bonus)+"\n"+
                             "--------------------"+"\n"+
                             "Вес кепок "+myitog.amount_k*authuser.weight_k+"\n"+
                             "Вес стаканов "+myitog.amount_s*authuser.weight_s+"\n"+
@@ -488,7 +488,9 @@ public class ServeOneJabber extends Thread
                             "Итого ВЕС "+(myitog.amount_t*authuser.weight_t+myitog.amount_k*authuser.weight_k+myitog.amount_s*authuser.weight_s)+"\n"+
                             "--------------------"+"\n"+
                             "Оклад "+myitog.salary+"\n"+
-                            "ИТОГО ЗП "+((myitog.salary+myitog.amount_k*authuser.bonus)-myitog.get_summ_mulct());
+                            "ИТОГО ЗП "+API.my_round((myitog.salary +
+                                        ((double)myitog.amount_k*authuser.price_k / 100) * authuser.bonus -
+                                        myitog.get_summ_mulct()),2);
                         if(authuser.GetSuper())
                         {
                             int numfile = Integer.parseInt(filename.split("_")[1]);
