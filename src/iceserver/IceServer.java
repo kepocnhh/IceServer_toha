@@ -7,12 +7,10 @@ import ice.Strings;
 import ice.user;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,10 +20,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author alex
- */
 public class IceServer
 {
     //
@@ -139,7 +133,7 @@ public class IceServer
         System.setErr(st);
         System.setOut(st);
         ServerSocket s = new ServerSocket(Integer.parseInt(al.get(10)));
-        System.out.println(new Date().toString() +"\n\n-\tServer Started");
+        ServeOneJabber.add_log(3, "IceServer", "\n\n-\tServer Started");
         //
         //test();
         //
@@ -151,7 +145,7 @@ public class IceServer
                 Socket socket = s.accept();
                 try
                 {
-                    System.out.println(new Date().toString() + " Goto ServeOneJabber. InetAddress " + s.getInetAddress());
+                    ServeOneJabber.add_log(3, "IceServer", "Goto --> ServeOneJabber");
                     new ServeOneJabber(socket);
                 }
                 catch (IOException e)
