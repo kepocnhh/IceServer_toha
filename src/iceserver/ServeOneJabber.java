@@ -136,12 +136,13 @@ public class ServeOneJabber extends Thread
                 }
                 if (c == login.class)//Авторизация пользователя
                 {
+                    login l = (login) bm;
                     add_log(3,"Messaging","login");
-                    user u = API.Get_user(((login) bm).get_log(), userlist); //попытка добыть объект данных пользователя по заданному логину
+                    user u = API.Get_user(l.get_log(), userlist); //попытка добыть объект данных пользователя по заданному логину
                     if(u != null)//если добыли
                     {
                         add_log(3,"Messaging","find "+u.GetMail());
-                        if(u.GetPass().equals(((login) bm).get_pass()))//если запрошеный пароль совпадает с паролем найденного пользователя
+                        if(u.GetPass().equals(l.get_pass()))//если запрошеный пароль совпадает с паролем найденного пользователя
                         {
                             AuthMessaging(u, outputStream, inputStream);//переходим в обработку сообщений клиентского приложения от конкретного пользователя
                             return;
@@ -152,7 +153,7 @@ public class ServeOneJabber extends Thread
                         }
                     }
                     //если не добыли
-                    add_log(2,"Messaging","Auth not successful");//нужно вывести сообщение о неудаче
+                    add_log(2,"Messaging","Auth not successful"+"\n"+"bad login "+l.get_log());//нужно вывести сообщение о неудаче
                     if(Answer("Messaging",c, outputStream, (BaseMessage) new IceError("AuthNotSuccessful"),"неудачная попытка ответить клиенту что авторизация не удалась"))//и ответить соответственно клиенту
                     {
                         return;//не позволяем программе дальше обрабатывать информацию
@@ -361,7 +362,7 @@ public class ServeOneJabber extends Thread
                 {
                     return;//не позволяем программе дальше обрабатывать информацию
                 }
-                add_log(0,"Messaging","ping request send");
+                add_log(0,authuser.GetMail(),"ping request send");
                 continue;
             }
             if (c == DataForRecord.class)//пришло сообщение содержащее данные для записи
@@ -386,9 +387,9 @@ public class ServeOneJabber extends Thread
                     String pdfname;//имя для PDF отчёта
                     loglist.add(bm);//добавляем это сообщение в лист объектов лога
                     myitog = API.Calculate_Itog(myitog, authuser, loglist);//пересчитываем объект итогов
-                    add_log(3,authuser.GetMail(),"Calculate_Itog");
+                    add_log(3,authuser.GetMail()," - " + "Calculate_Itog");
                     loglist = API.Set_Itog(myitog, loglist);//переписываем объект итогов внутри листа объектов лога
-                    add_log(3,authuser.GetMail(),"Set_Itog " + myitog.SS.toString());
+                    add_log(3,authuser.GetMail()," - " + "Set_Itog " + myitog.SS.toString());
                     //записываем лист в файл лога
                     if(AddMessage(authuser.GetMail(),loglist, fullname, c, outputStream))//и если запись прошла успешно то продолжаем
                     {
@@ -397,7 +398,7 @@ public class ServeOneJabber extends Thread
                     String mailtext = myitog.day_otw+"\n"+
                             "Начало рабочего дня "+myitog.date_open.getHours()+":"+CreatePDF.minutes(myitog.date_open.getMinutes()+"");
                         pdfname = myitog.nameshop + " " + filename + " " + Translate(p.getTypeEvent());//создаём имя для PDF отчёта
-                    add_log(3,authuser.GetMail(),"имя для PDF отчёта " + pdfname);
+                    add_log(3,authuser.GetMail()," - - " + "имя для PDF отчёта " + pdfname);
                     if (p.getTypeEvent() == DataForRecord.TypeEvent.open)//если было открытие
                     {
                         try
@@ -498,7 +499,7 @@ public class ServeOneJabber extends Thread
                             add_log(3,authuser.GetMail(),"Create next file Successful " + authuser.GetMail());
                         }
                     }
-                    add_log(3,authuser.GetMail(),"CreatePDF");
+                    add_log(3,authuser.GetMail()," - - " + "CreatePDF");
                     for (String mail : SendEmail.maillist)//отправляем письмо с отчётом и коментарием всем адресам в списке SendEmail.maillist
                     {
                         try
@@ -523,18 +524,18 @@ public class ServeOneJabber extends Thread
                             Answer(authuser.GetMail(),c, outputStream, (BaseMessage) new IceError("MessagingError"),"неудачная попытка ответить клиенту что письмо отправить не удалось");//попытка ответить клиенту что письмо отправить не удалось
                             return;//не позволяем программе дальше обрабатывать информацию
                         }
-                        add_log(3,authuser.GetMail(),"PDF send to " + mail);
+                        add_log(3,authuser.GetMail()," - - - " + "PDF send to " + mail);
                     }
                         String info = "actual Itog:";
                         if(myitog.SS!=null)
                             info += "\n | StatusSession - " + myitog.SS.toString();
                         if(myitog.date_open!=null)
-                            info += "\n | Date open - " + myitog.date_open;
+                            info += "\n | Date open - " + date_to_string(myitog.date_open);
                         if(myitog.date_close!=null)
-                            info += "\n | Date close - " + myitog.date_close;
+                            info += "\n | Date close - " + date_to_string(myitog.date_close);
                         if(myitog.nameshop!=null)
-                            info += "\n | Name shop - " + myitog.nameshop.toString();
-                        add_log(3,authuser.GetMail(),info);
+                            info += "\n | Name shop - " + myitog.nameshop;
+                        add_log(3,authuser.GetMail()," - - " + info);
                     try
                     {
                         outputStream.reset();
@@ -550,7 +551,7 @@ public class ServeOneJabber extends Thread
                     {
                         return;//не позволяем программе дальше обрабатывать информацию
                     }
-                    add_log(0,authuser.GetMail(),"DFR request send" + " " + Translate(p.getTypeEvent()) + " " + myitog.SS.toString());
+                    add_log(0,authuser.GetMail()," - " + "DFR request send" + " " + Translate(p.getTypeEvent()) + " " + myitog.SS.toString());
                     continue;
                 }
                 if (p.getTypeEvent() == DataForRecord.TypeEvent.drug || p.getTypeEvent() == DataForRecord.TypeEvent.steal)//а если всё же пришла дата по приходу или уходу
@@ -605,10 +606,10 @@ public class ServeOneJabber extends Thread
                 add_log(3,authuser.GetMail(),"Bye!");
                 return;
             }
-            add_log(1,"Messaging","WTF O_o" + " IN");
+            add_log(1,authuser.GetMail(),"WTF O_o" + " IN");
             return;//не позволяем программе дальше обрабатывать информацию
         }
-        add_log(1,"Messaging","WTF O_o" + " OUT");
+        add_log(1,authuser.GetMail(),"WTF O_o" + " OUT");
         return;//не позволяем программе дальше обрабатывать информацию
     }
     
